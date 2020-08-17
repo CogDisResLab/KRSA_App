@@ -1,0 +1,12 @@
+name: KRSA
+title: KRSA
+username:
+account: kalganem
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1555072
+bundleId: 3526916
+url: https://kalganem.shinyapps.io/KRSA/
+when: 1597696290.20085
+asMultiple: FALSE
+asStatic: FALSE
