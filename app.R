@@ -320,13 +320,13 @@ ui <- shinyUI(fluidPage(
               accept=c('text/csv', 'text/comma-separated-values','text/plain', '.csv')),
     #Options for file type including header, seperator, and quotes.
     h4("File options:"),
-    checkboxInput('header', 'Header', TRUE),
-    radioButtons('sep', 'Separator', inline=F,
+    checkboxInput('header1', 'Header', TRUE),
+    radioButtons('sep1', 'Separator', inline=F,
                  c(Tab='\t',
                    Comma=',',
                    Semicolon=';'),
                  '\t'),
-    radioButtons('quote', 'Quote', inline=F,
+    radioButtons('quote1', 'Quote', inline=F,
                  c(None='',
                    'Double Quote'='"',
                    'Single Quote'="'"),
@@ -346,7 +346,7 @@ ui <- shinyUI(fluidPage(
       fileInput('file1', label = h5("Kinase-peptide association file"),
                 accept=c('text/csv', 'text/comma-separated-values','text/plain', '.csv')),
       h4("File options:"),
-      checkboxInput('header', 'Header', TRUE),
+      checkboxInput('header2', 'Header', TRUE),
       radioButtons('sep2', 'Separator', inline=F,
                    c(Tab='\t',
                      Comma=',',
@@ -403,7 +403,7 @@ ui <- shinyUI(fluidPage(
                
                fluidRow(
                  h3("Preview of all data"),
-                 shiny::dataTableOutput(outputId="contents0"),
+                 DT::dataTableOutput(outputId="contents0"),
                  #DT::dataTableOutput('contents0'),
                  #column(6,
                         #DT::dataTableOutput('contents1'),
@@ -536,9 +536,10 @@ server <- function(input, output, session) {
   data_set0 <- reactive({
     req(input$file0)
     inFile <- input$file0
-    data_set0<-read.csv(inFile$datapath, header=input$header, 
-                       sep=input$sep, quote=input$quote, stringsAsFactors = F)
+    data_set0<-read.csv(inFile$datapath, header=input$header1, 
+                       sep=input$sep1, quote=input$quote1, stringsAsFactors = F)
     fullDataSet<<-data_set0
+    fullDataSet
   })
   
   #Output for rendering the preview table in the main panel.
