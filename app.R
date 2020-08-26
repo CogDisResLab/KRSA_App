@@ -408,11 +408,11 @@ ui <- shinyUI(fluidPage(
                  #column(6,
                         #DT::dataTableOutput('contents1'),
                         h3("Preview of control data"),
-                        shiny::dataTableOutput(outputId="contents1"),
+                        DT::dataTableOutput(outputId="contents1"),
                         #),
                  #column(6,
                         h3("Preview of experimental data"),
-                        shiny::dataTableOutput(outputId="contents2")
+                        DT::dataTableOutput(outputId="contents2")
                         #)
                )
                
@@ -562,7 +562,7 @@ server <- function(input, output, session) {
   
   #Output for rendering the preview table in the main panel.
   #output$contents1 <- DT::renderDataTable({
-  output$contents1 <- shiny::renderDataTable({
+  output$contents1 <- DT::renderDataTable({
     if(is.null(input$controlSamples)){
       return(data_set0())
     }else{
@@ -587,7 +587,7 @@ server <- function(input, output, session) {
   
   #Output for rendering the preview table in the main panel.
   #output$contents2 <- DT::renderDataTable({
-  output$contents2 <- shiny::renderDataTable({
+  output$contents2 <- DT::renderDataTable({
     if(is.null(input$experimentalSamples)){
       return(data_set0())
     }else{
