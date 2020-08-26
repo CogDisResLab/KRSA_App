@@ -790,14 +790,14 @@ server <- function(input, output, session) {
    })
    
    #Download graph
-   output$downloadData_LR <- downloadHandler(
-     file = function() { paste0(input$xyplot, ".pdf") },
-     content = function(file) {
-       pdf(file)
-       print(plotInputG())
-       dev.off()
-       #ggsave(filename=file, plot = plotInputG(), device = "pdf")
-   })
+   # output$downloadData_LR <- downloadHandler(
+   #   file = function() { paste0(input$xyplot, ".pdf") },
+   #   content = function(file) {
+   #     pdf(file)
+   #     print(plotInputG())
+   #     dev.off()
+   #     #ggsave(filename=file, plot = plotInputG(), device = "pdf")
+   # })
    
 
   })
@@ -963,12 +963,12 @@ server <- function(input, output, session) {
   #     plotInput()
   #     dev.off()
   #   })
-  output$downloadData <- downloadHandler(
-    filename = function() { paste0(input$kinase, ".pdf") },
-    content = function(file) {
-      ggsave(file, plot = plotInput(), device = "pdf")
-    }
-  )
+  # output$downloadData <- downloadHandler(
+  #   filename = function() { paste0(input$kinase, ".pdf") },
+  #   content = function(file) {
+  #     ggsave(file, plot = plotInput(), device = "pdf")
+  #   }
+  # )
   
   #For Heatmap
   plotInputH <- function(){
@@ -1022,13 +1022,13 @@ server <- function(input, output, session) {
   })
 
   #Download Heatmap
-  output$downloadDataH <- downloadHandler( #TODO: download in portrait mode 
-    filename = "heatmap.pdf",
-    content = function(file) {
-      pdf(file)
-      plotInputH()
-      dev.off()
-    })
+  # output$downloadDataH <- downloadHandler( #TODO: download in portrait mode 
+  #   filename = "heatmap.pdf",
+  #   content = function(file) {
+  #     pdf(file)
+  #     plotInputH()
+  #     dev.off()
+  #   })
   
   #For Network
   plotInputN <- function(){
@@ -1116,13 +1116,13 @@ server <- function(input, output, session) {
   })
   
   #Download Network
-  output$downloadDataN <- downloadHandler(
-    filename = "network.pdf",
-    content = function(file) {
-      pdf(file)
-      plotInputN()
-      dev.off()
-    })
+  # output$downloadDataN <- downloadHandler(
+  #   filename = "network.pdf",
+  #   content = function(file) {
+  #     pdf(file)
+  #     plotInputN()
+  #     dev.off()
+  #   })
 }
 
 ###############################################################################
