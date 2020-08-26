@@ -760,8 +760,9 @@ server <- function(input, output, session) {
   data_set <- reactive({
     req(input$file1)
     inFile <- input$file1
-    data_set<-read.csv(inFile$datapath, header=input$header, 
+    data_set<-read.csv(inFile$datapath, header=input$header2, 
                        sep=input$sep2, quote=input$quote2)
+    data_set
   })
   
   #Output for rendering the preview table in the main panel.
