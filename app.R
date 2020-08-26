@@ -2,7 +2,7 @@ library(shiny)
 library(shinydashboard)
 library(leaflet)
 library(data.table)
-library(DT)
+#library(DT)
 library(plyr)
 library(ggplot2)
 library(dplyr)
@@ -403,16 +403,16 @@ ui <- shinyUI(fluidPage(
                
                fluidRow(
                  h3("Preview of all data"),
-                 DT::dataTableOutput(outputId="contents0"),
+                 shiny::dataTableOutput(outputId="contents0"),
                  #DT::dataTableOutput('contents0'),
                  #column(6,
                         #DT::dataTableOutput('contents1'),
                         h3("Preview of control data"),
-                        DT::dataTableOutput(outputId="contents1"),
+                        shiny::dataTableOutput(outputId="contents1"),
                         #),
                  #column(6,
                         h3("Preview of experimental data"),
-                        DT::dataTableOutput(outputId="contents2")
+                        shiny::dataTableOutput(outputId="contents2")
                         #)
                )
                
@@ -456,7 +456,7 @@ ui <- shinyUI(fluidPage(
 
       ),
       tabPanel("Step 4: Results",
-           dataTableOutput("overallTable"),
+           shiny::dataTableOutput("overallTable"),
            downloadButton('downloadDataR', 'Download Results')
       ),
       tabPanel("Step 5: Histograms",
@@ -544,7 +544,7 @@ server <- function(input, output, session) {
   
   #Output for rendering the preview table in the main panel.
   #output$contents0 <- DT::renderDataTable({
-  output$contents0 <- DT::renderDataTable({
+  output$contents0 <- shiny::renderDataTable({
     if(is.null(input$celltype)){
       return(data_set0())
     }else{
@@ -562,7 +562,7 @@ server <- function(input, output, session) {
   
   #Output for rendering the preview table in the main panel.
   #output$contents1 <- DT::renderDataTable({
-  output$contents1 <- DT::renderDataTable({
+  output$contents1 <- shiny::renderDataTable({
     if(is.null(input$controlSamples)){
       return(data_set0())
     }else{
@@ -587,7 +587,7 @@ server <- function(input, output, session) {
   
   #Output for rendering the preview table in the main panel.
   #output$contents2 <- DT::renderDataTable({
-  output$contents2 <- DT::renderDataTable({
+  output$contents2 <- shiny::renderDataTable({
     if(is.null(input$experimentalSamples)){
       return(data_set0())
     }else{
@@ -827,7 +827,7 @@ server <- function(input, output, session) {
       choices = resultsTable[,1],
       selected = resultsTable[1,1]
     )
-    output$overallTable <- DT::renderDataTable({
+    output$overallTable <- shiny::renderDataTable({
       datatable(subTable, rownames = TRUE, caption = "Substrates Table")
     })
   })
@@ -911,7 +911,7 @@ server <- function(input, output, session) {
     overallTable2<<-functionresults[[1]]
     meow<<-as.data.frame(overallTable2)
     scores<<-functionresults[[2]]
-    output$overallTable <- DT::renderDataTable({
+    output$overallTable <- shiny::renderDataTable({
       datatable(overallTable2, rownames = TRUE, caption = "Results Table")
     })
     #Guts for making the histogram drop down work.
