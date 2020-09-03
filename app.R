@@ -7,6 +7,8 @@ library(dplyr)
 library(shinycssloaders)
 library(tidyverse)
 library(broom)
+library(gplots)
+library(igraph)
 
 source("scripts/reading_data.R")
 source("scripts/dropdown_btn.R")
