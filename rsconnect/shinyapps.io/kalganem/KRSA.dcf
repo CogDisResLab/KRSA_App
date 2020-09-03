@@ -5,9 +5,9 @@ account: kalganem
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1555072
-bundleId: 3586035
+bundleId: 3587126
 url: https://kalganem.shinyapps.io/KRSA/
-when: 1599086950.91444
+when: 1599112979.11905
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: test/app_old.R|test/app.R

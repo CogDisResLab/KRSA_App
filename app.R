@@ -1,14 +1,9 @@
 library(shiny)
 library(shinydashboard)
-#library(leaflet)
 library(data.table)
 library(DT)
-#library(plyr)
 library(ggplot2)
 library(dplyr)
-#library(gplots)
-#library(igraph)
-#library(stringr)
 library(shinycssloaders)
 library(tidyverse)
 library(broom)
@@ -122,16 +117,16 @@ ui <- shinyUI(fluidPage(
                          
                          fluidRow(
                              h3("Preview of all data"),
-                             shiny::dataTableOutput(outputId="contents0"),
+                             DT::dataTableOutput(outputId="contents0"),
                              #DT::dataTableOutput('contents0'),
                              #column(6,
                              #DT::dataTableOutput('contents1'),
                              h3("Preview of control data"),
-                             shiny::dataTableOutput(outputId="contents1"),
+                             DT::dataTableOutput(outputId="contents1"),
                              #),
                              #column(6,
                              h3("Preview of experimental data"),
-                             shiny::dataTableOutput(outputId="contents2")
+                             DT::dataTableOutput(outputId="contents2")
                              #)
                          )
                          
@@ -151,7 +146,7 @@ ui <- shinyUI(fluidPage(
                              )
                          ),
                          hr(),
-                         shiny::dataTableOutput("fit_table"),
+                         DT::dataTableOutput("fit_table"),
                          downloadButton('downloadDataFC', 'Download Substrate Results'),
                          downloadButton('downloadDataFC2', 'Download Substrate Results 2'),
                          selectInput("pep_sel", "Choose a Substrate:", choices=c()), 
@@ -176,7 +171,7 @@ ui <- shinyUI(fluidPage(
                          
                 ),
                 tabPanel("Step 4: Results",
-                         shiny::dataTableOutput("overallTable"),
+                         DT::dataTableOutput("overallTable"),
                          downloadButton('downloadDataR', 'Download Results')
                 ),
                 tabPanel("Step 5: Histograms",
@@ -353,8 +348,8 @@ server <- function(input, output, session) {
        })
 
 
-          output$fit_table <- shiny::renderDataTable({
-            Dataset_PW_C1_Fit
+          output$fit_table <- DT::renderDataTable({
+            head(Dataset_PW_C1_Fit)
             #}, caption = "Preview of raw data file")
           }, options=list(scrollX=TRUE, pageLength = 10))
           
@@ -383,18 +378,18 @@ server <- function(input, output, session) {
     
     #Output for rendering the preview table in the main panel.
     #output$contents0 <- DT::renderDataTable({
-    output$contents0 <- shiny::renderDataTable({
-      data_set0() %>% filter(Barcode %in% input$celltype)
+    output$contents0 <- DT::renderDataTable({
+      data_set0() %>% filter(Barcode %in% input$celltype) %>% head()
         #}, caption = "Preview of raw data file")
     }, options=list(scrollX=TRUE, pageLength = 10))
     
-    output$contents1 <- shiny::renderDataTable({
-      data_set0() %>% filter(`Sample name` %in% input$controlSamples)
+    output$contents1 <- DT::renderDataTable({
+      data_set0() %>% filter(`Sample name` %in% input$controlSamples) %>% head()
       #}, caption = "Preview of raw data file")
     }, options=list(scrollX=TRUE, pageLength = 10))
     
-    output$contents2 <- shiny::renderDataTable({
-      data_set0() %>% filter(`Sample name` %in% input$experimentalSamples) 
+    output$contents2 <- DT::renderDataTable({
+      data_set0() %>% filter(`Sample name` %in% input$experimentalSamples) %>% head()
       #}, caption = "Preview of raw data file")
     }, options=list(scrollX=TRUE, pageLength = 10))
     
@@ -416,7 +411,7 @@ server <- function(input, output, session) {
       krsa_output <- krsa_2(input$itr_num, cov_file, shared_values$sig_pep)
       incProgress(0.8)
       
-      output$overallTable <- shiny::renderDataTable({
+      output$overallTable <- DT::renderDataTable({
         krsa_output$krsa_table
       }, options=list(scrollX=TRUE, pageLength = 10))
      

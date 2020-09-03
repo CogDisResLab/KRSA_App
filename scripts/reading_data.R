@@ -3,7 +3,7 @@ library(tidyverse)
 
 reading_data <- function(df) {
   
-  meta_rows <- which(df$V1 == "")
+  meta_rows <- which(df[,1] == "")
   epmty_col <- which(df[meta_rows[1],] == "")
   
   meta_info <- df[meta_rows,(epmty_col[length(epmty_col)]+1):ncol(df)]
