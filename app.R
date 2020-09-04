@@ -329,9 +329,9 @@ server <- function(input, output, session) {
         
         pass_both_2 <- intersect(ppPassAll, ppPassR2_avg)
         
-        grouped_fit %>% filter(Peptide %in% pass_both_2) %>% 
+        grouped_fit %>% filter(Peptide %in% ppPassR2_avg) %>% 
           group_by(Peptide) %>% 
-          mutate(FC = SignalAvg[Group == "Case"]/SignalAvg[Group == "Control"]) %>%
+          mutate(FC = SignalAvg[Group == "Control"]/SignalAvg[Group == "Case"]) %>%
           filter(FC <= input$FCslider[1] | FC >= input$FCslider[2]) %>% pull(Peptide) %>% unique() -> sig_pep
         
       
