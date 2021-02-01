@@ -53,7 +53,7 @@ samplingPep <- function(x,CovFile,sum_num) {
   CovFile %>%
     group_by(Kin) %>%
     summarise(
-      counts = sum(Substrates %in% sample(CovFile$Substrates %>% unique(),sum_num))
+      counts = sum(Substrates %in% sample(CovFile$Substrates %>% unique(),sum_num)), .groups = 'drop'
     ) %>% mutate(itr = x) -> res
   
   return(res)
