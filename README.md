@@ -18,7 +18,7 @@ Access
 ------
 
 KRSA preprint is available here:
-[Paper](%22https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1.full%22).
+[Paper](%22https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1%22).
 
 The web application is freely accessible here: [Link](%22%22)
 
@@ -56,8 +56,6 @@ drop-down menus which allow for clustering of samples within and across
 chips.
 
 ### Step2: Stringency
-
-Stringency options:
 
 #### QC steps:
 
@@ -147,3 +145,10 @@ the network. Confidence thresholds and connection type options are
 provided to allow for more control over the resultant graph.
 
 ![KRSA Network](figures/networks.jpg)
+
+Contact
+=======
+
+For technical issues, please start a new issue on this repo. For
+biological interpretation questions please email:
+<a href="mailto:khaled.alganem@rockets.utoledo.edu" class="email">khaled.alganem@rockets.utoledo.edu</a>

@@ -16,7 +16,7 @@ More info on the PamStation12 platform can be found here: [PamGene]("https://pam
 
 ## Access
 
-KRSA preprint is available here: [Paper]("https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1.full").
+KRSA preprint is available here: [Paper]("https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1").
 
 The web application is freely accessible here: [Link]("")
 
@@ -31,9 +31,12 @@ The web application is freely accessible here: [Link]("")
 The user-supplied kinase-peptide association file and the raw kinome array data file are selected as input. The kinase-peptide associations should be based on the known/predicted interactions found in databases like GPS 3.0 and Kinexus Phosphonet. Expected inputs should be formatted as shown in the example files: data/datasets/DLPFC_MvsF_STK.txt and data/sup/FinalMappingSTK.txt. Descriptions of pre-processing requirements, software use, and downstream validation techniques can also be found at the associated project GitHub.
 
 
+
+
 ## Interface and Use
 
 We wanted to have a user friendly interface so we designed KRSA to be as a dashboard where each tab represents a step of the analysis 
+
 
 ## Tabs
 
@@ -41,13 +44,15 @@ We wanted to have a user friendly interface so we designed KRSA to be as a dashb
 
 This tab lets you preview your uploaded data and select the groups classifications for the input samples can be determined through drop-down menus which allow for clustering of samples within and across chips. 
 
+
+
 ### Step2: Stringency
 
-Stringency options:
 
 #### QC steps:
 
 Including minimum exposure intensity > 2 at the last exposure time in the cycle (200 ms) and linearity of the post-wash curve as determined by linear regression (R2 > 0.9), are provided to reduce the total number of peptides evaluated to those meeting the quality control standards desired by the user, with these peptides denoted as s. 
+
 
 #### Fold Change Threshold:
 
@@ -56,9 +61,11 @@ Fold change thresholds are selected to identify differentially phosphorylated pe
 ![KRSA Curves](figures/curves.gif)
 
 
+
 ### Step3: Iteration
 
 Random Sampling: KRSA performs random sampling of the available peptides on the kinase array to get distributions for associated kinase-peptide interactions. The number of iterations of sampling (i), between 0-5000, is selected by the user, where higher i values increases the stability of the kinase predictions while also increasing the run time of the software. For each iteration i, the same number of peptides as h are randomly selected without replacement from s available peptides (these randomly selected peptides are denoted as h’).
+
 
 
 ### Step4: Results and Step5: Histogram
@@ -71,12 +78,22 @@ Histograms (Step5) displaying the distribution of mappings for each kinase after
 
 ![KRSA Histograms](figures/hits.jpg)
 
+
+
 ### Step6: Heatmap
 Heatmap of Differential Phosphorylation: A user-customizable heatmap, generated using the R package ‘pheatmap’, visualizing the fold-change differences for each peptide is provided and sorted in descending order. This heatmap can be saved as a PDF or image file directly within the KRSA software.
 
 ![KRSA Heatmap](figures/heatmap.jpg)
 
+
+
 ## Step7: Network
 A network diagram connecting h kinases to predicted interacting proteins or kinases is generated using the Search Tool for Retrieval of Interacting Genes/Proteins (STRING) database data and graphed with the ‘igraph’ package in R (Szklarczyk et al., 2017). The generated network represents the direct interactions between protein kinases identified from KRSA, as well as additional kinases indirectly connected to the original seed kinases. STRING was used for growing and connecting the kinase network by selectively adding interacting kinases with the highest confidence interaction score. Because of the highly interactive and repetitive structure of kinase activity, we weighted the nodes of the network based on the number of interactions found for each kinase in the network. Confidence thresholds and connection type options are provided to allow for more control over the resultant graph.
 
 ![KRSA Network](figures/networks.jpg)
+
+
+# Contact
+
+For technical issues, please start a new issue on this repo.
+For biological interpretation questions please email: khaled.alganem@rockets.utoledo.edu
