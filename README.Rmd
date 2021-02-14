@@ -16,9 +16,11 @@ More info on the PamStation12 platform can be found here: [PamGene]("https://pam
 
 ## Access
 
-KRSA preprint is available here: [Paper]("https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1").
+KRSA preprint is available here: [Paper]("https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1")
 
 The web application is freely accessible here: [Link]("")
+
+KRSA R package repo: [KRSA Packgae]("https://github.com/kalganem/KRSA")
 
 
 

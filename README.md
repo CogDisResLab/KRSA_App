@@ -1,5 +1,4 @@
-KRSA
-----
+## KRSA
 
 Kinome Random Sampling Analyzer, or KRSA, is an R Shiny application that
 automates many of the steps required to analyze
@@ -14,39 +13,37 @@ networks instead of individual kinases.
 More info on the PamStation12 platform can be found here:
 [PamGene](%22https://pamgene.com/%22)
 
-Access
-------
+## Access
 
 KRSA preprint is available here:
-[Paper](%22https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1%22).
+[Paper](%22https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1%22)
 
 The web application is freely accessible here: [Link](%22%22)
 
-Workflow
---------
+KRSA R package repo: [KRSA
+Packgae](%22https://github.com/kalganem/KRSA%22)
+
+## Workflow
 
 ![KRSA Workflow](figures/workflow.jpg)
 
-Input Files
------------
+## Input Files
 
 The user-supplied kinase-peptide association file and the raw kinome
 array data file are selected as input. The kinase-peptide associations
 should be based on the known/predicted interactions found in databases
 like GPS 3.0 and Kinexus Phosphonet. Expected inputs should be formatted
-as shown in the example files: data/datasets/DLPFC\_MvsF\_STK.txt and
+as shown in the example files: data/datasets/DLPFC_MvsF_STK.txt and
 data/sup/FinalMappingSTK.txt. Descriptions of pre-processing
 requirements, software use, and downstream validation techniques can
 also be found at the associated project GitHub.
 
-Interface and Use
------------------
+## Interface and Use
 
 We wanted to have a user friendly interface so we designed KRSA to be as
 a dashboard where each tab represents a step of the analysis
 
-Tabs
-----
+## Tabs
 
 ### Step1: Options
 
@@ -59,9 +56,9 @@ chips.
 
 #### QC steps:
 
-Including minimum exposure intensity &gt; 2 at the last exposure time in
+Including minimum exposure intensity \> 2 at the last exposure time in
 the cycle (200 ms) and linearity of the post-wash curve as determined by
-linear regression (R2 &gt; 0.9), are provided to reduce the total number
+linear regression (R2 \> 0.9), are provided to reduce the total number
 of peptides evaluated to those meeting the quality control standards
 desired by the user, with these peptides denoted as s.
 
@@ -98,8 +95,8 @@ on the randomly sampled peptides and the corresponding confidence
 interval. The number of times a kinase is mapped to h (the
 differentially phosphorylated peptides) is also determined, and
 comparison of this kinase count to the mean kinase count from sampling
-allows us to determine differential kinase activity through a Z-score
-&gt; 2 (alpha-level = 0.025).
+allows us to determine differential kinase activity through a Z-score \>
+2 (alpha-level = 0.025).
 
 Results of the above calculations are provided in tabular form (Step4:
 Results), sorted in decreasing order by Z-score. Kinases appearing at
@@ -127,8 +124,7 @@ KRSA software.
 
 ![KRSA Heatmap](figures/heatmap.jpg)
 
-Step7: Network
---------------
+## Step7: Network
 
 A network diagram connecting h kinases to predicted interacting proteins
 or kinases is generated using the Search Tool for Retrieval of
@@ -146,9 +142,8 @@ provided to allow for more control over the resultant graph.
 
 ![KRSA Network](figures/networks.jpg)
 
-Contact
-=======
+# Contact
 
 For technical issues, please start a new issue on this repo. For
 biological interpretation questions please email:
-<a href="mailto:khaled.alganem@rockets.utoledo.edu" class="email">khaled.alganem@rockets.utoledo.edu</a>
+<khaled.alganem@rockets.utoledo.edu>
