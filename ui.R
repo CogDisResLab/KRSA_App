@@ -8,6 +8,7 @@ library(reactable)
 shinyUI(navbarPage(title = "KRSA",
                    header = tagList(
                      useShinydashboard(),
+                     useShinyjs(),
                      tags$style(HTML("
                         .shiny-output-error-validation {
                          color: #ff0000;
@@ -94,10 +95,13 @@ shinyUI(navbarPage(title = "KRSA",
                                                             choices = list(""), selected = NULL
                                                   ),
                                                   selectInput("ctl_group", label = "Select the Control Group:",
-                                                              choices = list(""), selectize = F
+                                                              choices = list("")
                                                   ),
                                                   selectInput("case_group", label = "Select the Case Group:",
-                                                              choices = list(""), selectize = F
+                                                              choices = list("")
+                                                  ),
+                                                  selectInput("sampleName_col", label = "Select Columns to define uniques samples: ",
+                                                              choices = list(""), selected = NULL, multiple = T
                                                   ),
                                                   
                               ),
@@ -116,7 +120,7 @@ shinyUI(navbarPage(title = "KRSA",
                               shinydashboard::box(title = "Sampling Options", width = 6,status = "primary",solidHeader=TRUE,
                                                   sliderInput("itr_num", "Number of Iterations", min = 100, max = 2000, value = 500, step = 100),
                                                   switchInput("use_seed", "Use Seed?", value = FALSE, onLabel = "Yes", offLabel = "No"),
-                                                  textInput("use_seed_num", "Input Seed Number: ")
+                                                  numericInput("use_seed_num", "Input Seed Number: ", value = 123)
                               )
                             ),
                             
@@ -162,7 +166,8 @@ shinyUI(navbarPage(title = "KRSA",
                                        
                                        ),
                               tabPanel("Heatmap", 
-                                       
+                                       selectInput("heatmap_op1", choices = c("Normalized", "Not"), label = "Option"),
+                                       plotOutput("heatmap")
                                        ),
                               tabPanel("Boxplot", 
                                        

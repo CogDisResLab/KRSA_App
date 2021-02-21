@@ -65,8 +65,8 @@ server <- function(input, output, session) {
     
     output$err <- renderText(
       validate(
-        need(data_file$data, 'You need to load the signal data!'),
-        need(map_file$final_map, 'You need to load the kinase-substarte mapping file!')
+        need(data_file$data, '- You need to load the signal data!'),
+        need(map_file$final_map, '- You need to load the kinase-substarte mapping file!')
       )
     )
     
@@ -83,7 +83,14 @@ server <- function(input, output, session) {
       req(input$group_col)
       updateSelectInput(session, "ctl_group", choices = pull(data_file$data,input$group_col) %>% unique())
       updateSelectInput(session, "case_group", choices = pull(data_file$data,input$group_col) %>% unique())
+      updateSelectInput(session, "sampleName_col", choices = group_colms[group_colms!=input$group_col])
     })
+    
+    observe({
+      print(input$use_seed)
+      toggleState(id = "use_seed_num", condition = input$use_seed == T)
+    })
+    
     
     
     
@@ -102,12 +109,13 @@ server <- function(input, output, session) {
     # Catch Errors for KRSA -----
     output$err2 <- renderText(
       validate(
-        need(input$ctl_group != input$case_group, 'The Control and Case Groups need to be different!'),
-        need(map_file$final_map, 'You need to load the kinase-substarte mapping file!')
+        need(input$ctl_group != input$case_group, '- The Control and Case Groups need to be different!')
       )
     )
     
     req(input$ctl_group != input$case_group)
+    
+    chiptype <- "STK"
 
     showTab(inputId = "tabs", target = "Results: Overview")
     showTab(inputId = "tabs", target = "Results: Kinases")
@@ -120,16 +128,17 @@ server <- function(input, output, session) {
         "Design Options Selected: ", 
         HTML(paste(
           # TODO update chip type based on input
-          paste0("Chip Type = ", "STK"),br(),
+          paste0("Chip Type = ", chiptype),br(),
           paste0("Control Group = ",input$ctl_group),br(),
           paste0("Case Group = ",input$case_group),br(),
           paste0("Minimum Exposure Intensity Cutoff = ",input$max_sig_qc),br(),
           paste0("R2 Cutoff = ",input$r2_qc),br(),
-          paste0("LFC = ", input$lfc_thr),br(),
-          paste0("Use Seed: ", 
+          paste0("LFC Cutoff = ", input$lfc_thr),br(),
+          paste0("Seed Used: ", 
                  ifelse(input$use_seed, "Yes", "No")
                  ),br(),
-          paste0("Seed = ", input$use_seed_num)
+          ifelse(input$use_seed, paste0("Seed Number= ", round(input$use_seed_num)), "")
+         
                    
                )),
         
@@ -138,35 +147,84 @@ server <- function(input, output, session) {
       )
     })
     
+    data_file$filtered_data <- dplyr::filter(data_file$data, get(input$group_col) %in% c(input$ctl_group, input$case_group))
+    
+    data_file$pep_init <- krsa_filter_ref_pep(data_file$filtered_data$Peptide %>% unique()) 
+    
+    data_file$filtered_data %>% 
+      dplyr::filter(Peptide %in% data_file$pep_init) -> data_file$filtered_data
+    
+    
+    data_file$filtered_data <- krsa_qc_steps(data_file$filtered_data, sat_qc = F)
+    
+    #TODO need to dynamically create new names
+    data_file$filtered_data %>% 
+      mutate(Group = get(input$group_col), SampleName = paste(Group,get(input$sampleName_col), sep = "_")) -> data_file$filtered_data
+    
+    hgf <<- data_file$filtered_data
+    
+    data_file$pw_200 <- krsa_extractEndPointMaxExp(data_file$filtered_data, chiptype)
+    data_file$pw <- krsa_extractEndPoint(data_file$filtered_data, chiptype)
+  
+    
+    data_file$pep_maxSig <- krsa_filter_lowPeps(data_file$pw_200, input$max_sig_qc)
+    
+    
+    data_file$data_modeled <- krsa_scaleModel(data_file$pw, data_file$pep_maxSig)
+
+    data_file$pep_nonLinear <- krsa_filter_nonLinear(data_file$data_modeled$scaled, input$r2_qc)
+
+    data_file$lfc_table <- krsa_group_diff(data_file$data_modeled$scaled,
+                                           c(input$case_group, input$ctl_group),
+                                           data_file$pep_nonLinear, byChip = F)
+    
+    data_file$pep_sig <- krsa_get_diff(data_file$lfc_table, LFC, lfc_thr = input$lfc_thr)
+    
+    jhg <<- data_file$data_modeled$normalized
+    
+    jhg$Peptide %>% head(10) %>% unique() -> ppp
+    
+    krsa_heatmap(jhg, ppp)
+
+    
     output$init_peps <- renderValueBox({
       valueBox(
-        paste0(141), "Initial Peptides", icon = icon("list-ul")
+        paste0(length(data_file$pep_init)), "Initial Peptides", icon = icon("list-ul")
       )
     })
     output$qc_maxSig_peps <- renderValueBox({
       valueBox(
-        paste0(111), "Max Sig Peptides", icon = icon("list-ul"),
+        paste0(length(data_file$pep_maxSig)), "Max Sig Peptides", icon = icon("list-ul"),
         color = "yellow"
       )
     })
     output$qc_r2_peps <- renderValueBox({
       valueBox(
-        paste0(95), "R2 Peptides", icon = icon("list-ul"),
+        paste0(length(data_file$pep_nonLinear)), "R2 Peptides", icon = icon("list-ul"),
         color = "yellow"
       )
     })
     output$lfc_peps <- renderValueBox({
       valueBox(
-        paste0(34), "LFC Peptides", icon = icon("list-ul"),
+        paste0(length(data_file$pep_sig)), "LFC Peptides", icon = icon("list-ul"),
         color = "yellow"
       )
     })
     
+    output$heatmap <- renderPlot({
+      krsa_heatmap(
+        ifelse(input$heatmap_op1 == "Normalized", data_file$data_modeled$normalized, 
+               data_file$data_modeled$scaled
+               ), 
+        data_file$pep_sig)
+    })
     
   })
   
-  # Step2: Design -----
-  # Step3: Overview -----
+  ## Figures -----
+  
+  ### Heatmap -----
+  
   # Step4: Kinase Analysis -----
   # Step5: Network -----
   
