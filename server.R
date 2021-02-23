@@ -2,6 +2,13 @@ library(shiny)
 library(tidyverse)
 library(reactable)
 library(KRSA)
+library(shinydashboard)
+library(broom)
+library(igraph)
+
+source("funcs/krsa_violin_plot_2.R")
+source("funcs/krsa_waterfall_2.R")
+source("funcs/krsa_ball_model_2.R")
 
 
 server <- function(input, output, session) {
@@ -109,11 +116,18 @@ server <- function(input, output, session) {
     # Catch Errors for KRSA -----
     output$err2 <- renderText(
       validate(
-        need(input$ctl_group != input$case_group, '- The Control and Case Groups need to be different!')
+        need(input$ctl_group != input$case_group, '- The Control and Case Groups need to be different!'),
+        need(input$sampleName_col, '- Need uniques sample name input')
       )
     )
     
-    req(input$ctl_group != input$case_group)
+    req(input$ctl_group != input$case_group, input$sampleName_col)
+    
+    disable("start_krsa")
+    
+    withProgress(message = "Loading Data", value = 0, {
+      
+    
     
     chiptype <- "STK"
 
@@ -147,44 +161,49 @@ server <- function(input, output, session) {
       )
     })
     
+    incProgress(2/10, message = "Filtering Data")
     data_file$filtered_data <- dplyr::filter(data_file$data, get(input$group_col) %in% c(input$ctl_group, input$case_group))
     
     data_file$pep_init <- krsa_filter_ref_pep(data_file$filtered_data$Peptide %>% unique()) 
     
     data_file$filtered_data %>% 
       dplyr::filter(Peptide %in% data_file$pep_init) -> data_file$filtered_data
-    
-    
+
     data_file$filtered_data <- krsa_qc_steps(data_file$filtered_data, sat_qc = F)
     
     #TODO need to dynamically create new names
     data_file$filtered_data %>% 
       mutate(Group = get(input$group_col), SampleName = paste(Group,get(input$sampleName_col), sep = "_")) -> data_file$filtered_data
     
-    hgf <<- data_file$filtered_data
+    #hgf <<- data_file$filtered_data
     
     data_file$pw_200 <- krsa_extractEndPointMaxExp(data_file$filtered_data, chiptype)
     data_file$pw <- krsa_extractEndPoint(data_file$filtered_data, chiptype)
   
-    
     data_file$pep_maxSig <- krsa_filter_lowPeps(data_file$pw_200, input$max_sig_qc)
     
-    
+    incProgress(3/10, message = "Fitting the linear model ...")
     data_file$data_modeled <- krsa_scaleModel(data_file$pw, data_file$pep_maxSig)
 
     data_file$pep_nonLinear <- krsa_filter_nonLinear(data_file$data_modeled$scaled, input$r2_qc)
 
+    incProgress(4/10, message = "Calculating LFC")
     data_file$lfc_table <- krsa_group_diff(data_file$data_modeled$scaled,
                                            c(input$case_group, input$ctl_group),
                                            data_file$pep_nonLinear, byChip = F)
     
-    data_file$pep_sig <- krsa_get_diff(data_file$lfc_table, LFC, lfc_thr = input$lfc_thr)
+    # TODO automate this
+    #data_file$pep_sig <- krsa_get_diff(data_file$lfc_table, LFC, lfc_thr = input$lfc_thr)
     
-    jhg <<- data_file$data_modeled$normalized
+    data_file$lfc_table %>% 
+      filter(LFC >= input$lfc_thr | LFC <= input$lfc_thr*-1) %>% 
+      pull(Peptide) -> data_file$pep_sig
     
-    jhg$Peptide %>% head(10) %>% unique() -> ppp
+    #jhg <<- data_file$data_modeled$normalized
     
-    krsa_heatmap(jhg, ppp)
+    #jhg$Peptide %>% head(10) %>% unique() -> ppp
+    
+    #krsa_heatmap(jhg, ppp)
 
     
     output$init_peps <- renderValueBox({
@@ -211,22 +230,104 @@ server <- function(input, output, session) {
       )
     })
     
-    output$heatmap <- renderPlot({
-      krsa_heatmap(
-        ifelse(input$heatmap_op1 == "Normalized", data_file$data_modeled$normalized, 
-               data_file$data_modeled$scaled
-               ), 
-        data_file$pep_sig)
+    output$lfc_table <- renderDataTable({
+      data_file$lfc_table
     })
     
+    output$model_table <- renderDataTable({
+      data_file$data_modeled$scaled
+    })
+    
+    
+    #fjjf <<- data_file$pep_sig
+    
+    #krsa_heatmap(jhg, fjjf)
+    incProgress(5/10, message = "Genrating Figures")
+    
+    output$heatmap <- renderPlot({
+      krsa_heatmap(
+
+               data = if(input$heatmap_op1 == "Normalized") data_file$data_modeled$normalized
+               else data_file$data_modeled$scaled, 
+               peptides = data_file$pep_sig, 
+               clustering_method = input$heatmap_op2,
+               cluster_cols = input$heatmap_op3,
+               scale = input$heatmap_op4
+        )
+    })
+    
+    output$boxplot <- renderPlot({
+      krsa_violin_plot_2(data_file$data_modeled$scaled, 
+                       data_file$pep_sig, 
+                       facet = F
+                       )
+    })
+    
+    updateSelectInput(session, "crves_plot_opt1", choices = data_file$pep_sig,
+                      selected = data_file$pep_sig[1]
+                      )
+    
+    output$cuvres_plot <- renderPlot({
+      krsa_curve_plot(data_file$pw, input$crves_plot_opt1)
+    })
+    
+    output$waterfall <- renderPlot({
+      krsa_waterfall(data_file$lfc_table, input$lfc_thr, byChip = F)
+    })
+    
+    
+    
+    
+    # Step4: Kinase Analysis -----
+    
+    incProgress(8/10, message = "Resampling analysis")
+    
+    chipCov <<- KRSA_coverage_STK_PamChip_87102_v1
+    KRSA_file <<- KRSA_Mapping_STK_PamChip_87102_v1
+    
+    krsa(data_file$pep_sig, return_count = T, itr = input$itr_num) -> data_file$krsa
+    
+    output$krsa_table <- renderDataTable({
+      data_file$krsa$KRSA_Table %>% arrange(desc(abs(Z)))
+    })
+    
+    updateSelectInput(session, "histogram_opt1", choices = data_file$krsa$KRSA_Table$Kinase)
+    
+    output$histogram <- renderPlot({
+      krsa_histogram_plot(data_file$krsa$KRSA_Table, data_file$krsa$count_mtx, input$histogram_opt1) +
+        theme(strip.text = element_text(size = 20))
+    })
+    
+    # TODO
+    output$ReverseKRSA <- renderPlot({
+      krsa_reverse_krsa_plot(chipCov, data_file$lfc_table,
+                             filter(data_file$krsa$KRSA_Table, abs(Z) >= input$ReverseKRSA_opt1) %>% pull(Kinase)
+                             ,lfc_thr = input$lfc_thr, byChip = F)
+    })
+    
+    # Step5: Network -----
+    
+
+    output$network <- renderPlot({
+      krsa_ball_model_2(
+        kinase_hits = filter(data_file$krsa$KRSA_Table, abs(Z) >= input$network_opt1) %>% pull(Kinase),
+        data_file$krsa$KRSA_Table,
+        input$net_frq,
+        input$nodeSize,
+        input$nodeTextSize,
+        input$layout
+      )
+    })
+    #   
+    #   
+    # })
+    
+    enable("start_krsa")
+    
+    })
   })
   
-  ## Figures -----
-  
-  ### Heatmap -----
-  
-  # Step4: Kinase Analysis -----
-  # Step5: Network -----
+
   
   
     

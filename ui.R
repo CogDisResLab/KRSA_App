@@ -4,6 +4,9 @@ library(shinyjs)
 library(shinyBS)
 library(shinyWidgets)
 library(reactable)
+library(shinydashboard)
+library(shinycssloaders)
+library(magrittr)
 
 shinyUI(navbarPage(title = "KRSA",
                    header = tagList(
@@ -45,7 +48,7 @@ shinyUI(navbarPage(title = "KRSA",
                    tabPanel("Step1: Input",
 
                             fluidRow(
-                              shinydashboard::box(title = "Signal",width = 6, status = "info",solidHeader=TRUE,
+                              shinydashboard::box(title = "Signal",width = 6, status = "primary",solidHeader=TRUE,
                                      fileInput("input_file", label = "Upload the Median_SigmBg crosstab file: ",
                                                accept = c("txt")
                                      ),
@@ -66,7 +69,7 @@ shinyUI(navbarPage(title = "KRSA",
                             ),
                             
                             fluidRow(
-                              shinydashboard::box(title = "Preview Signal Table",width = 6, status = "info",solidHeader=TRUE,
+                              shinydashboard::box(title = "Preview Signal Table",width = 6, status = "primary",solidHeader=TRUE,
                                   tableOutput("sig_tbl_preview")
                               ),
                               shinydashboard::box(title = "Preview Kinase Mapping", width = 6,status = "primary",solidHeader=TRUE,
@@ -90,7 +93,7 @@ shinyUI(navbarPage(title = "KRSA",
                    tabPanel("Step2: Design Options",
                             
                             fluidRow(
-                              shinydashboard::box(title = "Design",width = 6, status = "info",solidHeader=TRUE,
+                              shinydashboard::box(title = "Design",width = 6, status = "primary",solidHeader=TRUE,
                                                   selectInput("group_col", label = "Select Column to define groups: ",
                                                             choices = list(""), selected = NULL
                                                   ),
@@ -114,8 +117,9 @@ shinyUI(navbarPage(title = "KRSA",
                             ),
                             
                             fluidRow(
-                              shinydashboard::box(title = "DP Options",width = 6, status = "info",solidHeader=TRUE,
+                              shinydashboard::box(title = "Fold Change Options",width = 6, status = "primary",solidHeader=TRUE,
                                                   sliderInput("lfc_thr", "Log2 Fold Change Cutoff", min = 0, max = 5, value = 0.2, step = 0.05),
+                                                  switchInput("by_chip", "By Chip?", value = FALSE, onLabel = "Yes", offLabel = "No")
                               ),
                               shinydashboard::box(title = "Sampling Options", width = 6,status = "primary",solidHeader=TRUE,
                                                   sliderInput("itr_num", "Number of Iterations", min = 100, max = 2000, value = 500, step = 100),
@@ -145,7 +149,7 @@ shinyUI(navbarPage(title = "KRSA",
                                        ),
                                        
                                        fluidRow(
-                                         shinydashboard::box(title = "Peptides Selection",width = 12, status = "info",solidHeader=TRUE,
+                                         shinydashboard::box(title = "Peptides Selection",width = 12, status = "primary",solidHeader=TRUE,
                                         valueBoxOutput("init_peps", width = 3),
                                         valueBoxOutput("qc_maxSig_peps", width = 3),
                                         valueBoxOutput("qc_r2_peps", width = 3),
@@ -153,7 +157,7 @@ shinyUI(navbarPage(title = "KRSA",
                                        )),
                                        
                                        fluidRow(
-                                         shinydashboard::box(title = "LFC Table",width = 6, status = "info",solidHeader=TRUE,
+                                         shinydashboard::box(title = "LFC Table",width = 6, status = "primary",solidHeader=TRUE,
                                                              dataTableOutput("lfc_table"),
                                                              downloadButton("lfc_table_download", label = "Save Table")
                                          ),
@@ -166,17 +170,36 @@ shinyUI(navbarPage(title = "KRSA",
                                        
                                        ),
                               tabPanel("Heatmap", 
-                                       selectInput("heatmap_op1", choices = c("Normalized", "Not"), label = "Option"),
-                                       plotOutput("heatmap")
+                                       fluidRow(
+                                         shinydashboard::box(title = "Options",width = 4, status = "primary",solidHeader=TRUE,
+                                                             selectInput("heatmap_op1", "Data",
+                                                                         choices = c("Normalized", "Normal"), label = "Option"),
+                                                             selectInput("heatmap_op2", "Clustering Method",
+                                                                         choices = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median","centroid"),
+                                                                         selected = "ward.D2"
+                                                             ),
+                                                             selectInput("heatmap_op4", "Scale",
+                                                                         choices = c("row", "column", "none"),
+                                                                         selected = "row"
+                                                             ),
+                                                             switchInput("heatmap_op3", "Cluster", onLabel = "Yes", offLabel = "No")
+                                         ),
+                                         shinydashboard::box(title = "Heatmap", width = 8,status = "primary",solidHeader=TRUE,
+                                                             plotOutput("heatmap", height = "700px")
+                                         )
+                                       )
+
+                                       
                                        ),
                               tabPanel("Boxplot", 
-                                       
+                                       plotOutput("boxplot") %>% withSpinner(color="#0dc5c1")
                                        ),
                               tabPanel("Cuvres Plot", 
-                                       
+                                       selectInput("crves_plot_opt1", "Peptide", choices = ""),
+                                       plotOutput("cuvres_plot", height = "600px") %>% withSpinner(color="#0dc5c1")
                                        ),
                               tabPanel("WaterFall", 
-                                       
+                                       plotOutput("waterfall", height = "700px") %>% withSpinner(color="#0dc5c1")
                                        )
                             )
                             
@@ -187,11 +210,17 @@ shinyUI(navbarPage(title = "KRSA",
                             
                             tabsetPanel(
                               tabPanel("Table",
+                                       dataTableOutput("krsa_table")
                                        ),
                               
                               tabPanel("Histogram",
+                                       selectInput("histogram_opt1", "Kinase", choices = ""),
+                                       plotOutput("histogram")
                                        ),
                               tabPanel("Reverse KRSA",
+                                       
+                                       sliderInput("ReverseKRSA_opt1", label = "Z Score cuttof",min = 0.5, max = 5, step = 0.25, value = 2),
+                                       plotOutput("ReverseKRSA")
                                        )
                             )
                             ),
@@ -199,6 +228,20 @@ shinyUI(navbarPage(title = "KRSA",
                    # Network Panel -----
                    tabPanel("Results: Network", 
                             
+                            fluidRow(
+                              shinydashboard::box("Network Options" ,width = 4, status = "primary",solidHeader=TRUE,
+                                                  sliderInput("net_frq", label = "Freq", min=1, max=10, value=4, step=1), 
+                                                  sliderInput("network_opt1", label = "Z score cutoff", min=0.5, max=10, value=2, step=0.25), 
+                                                  sliderInput("nodeSize", label = "Node Size", min=1, max=10, value=3, step=1),
+                                                  sliderInput("nodeTextSize", label = "Node Text Size", min=1, max=10, value=6, step=1),
+                                                  selectInput("layout", "Choose layout:", choices=c("Circle", "Fruchterman-Reingold", "Kamada Kawai", "LGL")),
+                                     
+                              ),
+                              shinydashboard::box("Network", width = 8, status = "primary",solidHeader=TRUE,
+                                                  plotOutput("network", width = "100%", height="800px"),
+                                                  downloadButton('downloadDataN', 'Download Network')
+                              )
+                            )
                             )
                    
                    
