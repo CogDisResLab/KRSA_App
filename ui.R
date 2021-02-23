@@ -12,24 +12,46 @@ shinyUI(navbarPage(title = "KRSA",
                    header = tagList(
                      useShinydashboard(),
                      useShinyjs(),
+                     ## css style ----
                      tags$style(HTML("
                         .shiny-output-error-validation {
                          color: #ff0000;
                          font-weight: bold;
                          font-size: 20px;
-                           }
+                        }
+                           
+                         .box.box-solid.box-primary>.box-header {
+                          color:#fff;
+                          background:#bfbfbf
+                                             }
+                         
+                         .box.box-solid.box-primary{
+                         border-bottom-color:#bfbfbf;
+                         border-left-color:#bfbfbf;
+                         border-right-color:#bfbfbf;
+                         border-top-color:#bfbfbf;
+                         }
+                         
+                         .box.box-primary>.box-header {
+                           color:#000000;
+                           background:#fff
+                                             }
+                         
+                         .box.box-primary{
+                         border-bottom-color:#bfbfbf;
+                         border-left-color:#bfbfbf;
+                         border-right-color:#bfbfbf;
+                         border-top-color:#bfbfbf;
+                         }
                           "))
                    ),
+                   ## ui elements -----
                    id = "tabs",
                    theme = "style/style.css",
                    footer = includeHTML("footer.html"),
                    fluid = TRUE, 
                    collapsible = TRUE,
-                   
-                    
 
-                   
-                   
                    # Home Panel -----
                    tabPanel("Home",
                             includeHTML("home.html"),
@@ -84,9 +106,7 @@ shinyUI(navbarPage(title = "KRSA",
                                   tags$hr(),span(textOutput("err"), style="color:red")
                                   )
                             ),
-                            
-                            
-                            
+    
                    ),
                    
                    # Step2: Design Panel -----
@@ -149,7 +169,7 @@ shinyUI(navbarPage(title = "KRSA",
                                        ),
                                        
                                        fluidRow(
-                                         shinydashboard::box(title = "Peptides Selection",width = 12, status = "primary",solidHeader=TRUE,
+                                        shinydashboard::box(title = "Peptides Selection",width = 12, status = "primary",solidHeader=TRUE,
                                         valueBoxOutput("init_peps", width = 3),
                                         valueBoxOutput("qc_maxSig_peps", width = 3),
                                         valueBoxOutput("qc_r2_peps", width = 3),
@@ -229,7 +249,7 @@ shinyUI(navbarPage(title = "KRSA",
                    tabPanel("Results: Network", 
                             
                             fluidRow(
-                              shinydashboard::box("Network Options" ,width = 4, status = "primary",solidHeader=TRUE,
+                              shinydashboard::box(title = "Network Options" ,width = 4, status = "primary",solidHeader=TRUE,
                                                   sliderInput("net_frq", label = "Freq", min=1, max=10, value=4, step=1), 
                                                   sliderInput("network_opt1", label = "Z score cutoff", min=0.5, max=10, value=2, step=0.25), 
                                                   sliderInput("nodeSize", label = "Node Size", min=1, max=10, value=3, step=1),
@@ -237,7 +257,7 @@ shinyUI(navbarPage(title = "KRSA",
                                                   selectInput("layout", "Choose layout:", choices=c("Circle", "Fruchterman-Reingold", "Kamada Kawai", "LGL")),
                                      
                               ),
-                              shinydashboard::box("Network", width = 8, status = "primary",solidHeader=TRUE,
+                              shinydashboard::box(title = "Network", width = 8, status = "primary",solidHeader=TRUE,
                                                   plotOutput("network", width = "100%", height="800px"),
                                                   downloadButton('downloadDataN', 'Download Network')
                               )
