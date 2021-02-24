@@ -12,6 +12,7 @@ shinyUI(navbarPage(title = "KRSA",
                    header = tagList(
                      useShinydashboard(),
                      useShinyjs(),
+                     #extendShinyjs(script = "scripts/js_functions.js", functions = c("shinyjs.init")),
                      ## css style ----
                      tags$style(HTML("
                         .shiny-output-error-validation {

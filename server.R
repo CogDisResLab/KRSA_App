@@ -117,7 +117,7 @@ server <- function(input, output, session) {
     output$err2 <- renderText(
       validate(
         need(input$ctl_group != input$case_group, '- The Control and Case Groups need to be different!'),
-        need(input$sampleName_col, '- Need uniques sample name input')
+        need(input$sampleName_col, '- Need unique sample name input')
       )
     )
     
