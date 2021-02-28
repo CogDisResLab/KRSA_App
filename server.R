@@ -7,7 +7,6 @@ library(broom)
 library(igraph)
 
 source("funcs/krsa_violin_plot_2.R")
-source("funcs/krsa_waterfall_2.R")
 source("funcs/krsa_ball_model_2.R")
 
 
@@ -45,7 +44,24 @@ server <- function(input, output, session) {
   observe({
     req(input$input_file)
     inFile <- input$input_file
-    data_file$data <- krsa_read(inFile$datapath)
+    
+    data_file$data <- tryCatch(
+      {
+        
+        krsa_read(inFile$datapath) 
+
+      },
+      error=function(cond) {
+        message("Failed to parase the file")
+        #message(cond)
+        # Choose a return value in case of error
+        return(1)
+      }
+    )
+    
+    #tryCatch(krsa_read(inFile$datapath))
+    
+    #data_file$data <- krsa_read(inFile$datapath)
     
   })
 
@@ -58,6 +74,10 @@ server <- function(input, output, session) {
   
   ## preview files -----
   output$sig_tbl_preview <- renderTable({
+      validate(
+        need(data_file$data == 1 , '- Wrong Fromat')
+      )
+
     req(data_file$data)
     data_file$data %>% head(6)
   })
@@ -73,11 +93,13 @@ server <- function(input, output, session) {
     output$err <- renderText(
       validate(
         need(data_file$data, '- You need to load the signal data!'),
+        need(!all(colnames(data_file$data) %in% c("ExposureTime", "Signal","Cycle", "Peptide", "SampleName")), "One of these column is missing (ExposureTime, Signal,Cycle, Peptide, SampleName)"),
         need(map_file$final_map, '- You need to load the kinase-substarte mapping file!')
       )
     )
     
-    req(data_file$data, map_file$final_map)
+    req(data_file$data, map_file$final_map, 
+        !all(colnames(data_file$data) %in% c("ExposureTime", "Signal","Cycle", "Peptide", "SampleName")))
     
     # TODO: check if is STK or PTK
     group_colms <- colnames(data_file$data) %>% unique()
@@ -135,7 +157,7 @@ server <- function(input, output, session) {
     showTab(inputId = "tabs", target = "Results: Kinases")
     showTab(inputId = "tabs", target = "Results: Network")
     
-    updateNavbarPage(session, "tabs", selected = "Results: Overview")
+    
     
     output$summary_options <- renderInfoBox({
       infoBox(
@@ -162,7 +184,7 @@ server <- function(input, output, session) {
     })
     
     incProgress(2/10, message = "Filtering Data")
-    data_file$filtered_data <- dplyr::filter(data_file$data, get(input$group_col) %in% c(input$ctl_group, input$case_group))
+    data_file$filtered_data <- dplyr::filter(data_file$data, .data[[input$group_col]] %in% c(input$ctl_group, input$case_group))
     
     data_file$pep_init <- krsa_filter_ref_pep(data_file$filtered_data$Peptide %>% unique()) 
     
@@ -171,16 +193,39 @@ server <- function(input, output, session) {
 
     data_file$filtered_data <- krsa_qc_steps(data_file$filtered_data, sat_qc = F)
     
-    #TODO need to dynamically create new names
     data_file$filtered_data %>% 
-      mutate(Group = get(input$group_col), SampleName = paste(Group,get(input$sampleName_col), sep = "_")) -> data_file$filtered_data
+      mutate(Group = .data[[input$group_col]]) %>% 
+      unite("SampleName",all_of(input$sampleName_col), remove = F) -> data_file$filtered_data
+    
+    # group by sample
+    
+    data_file$filtered_data %>% 
+      select(-Cycle, -Signal, -Peptide, -ExposureTime) %>% 
+      distinct(.keep_all = T) %>% 
+      group_by(SampleName) %>% 
+      add_count() %>% 
+      mutate(dup = if_else(n > 1, 1, 0)) %>% 
+      select(-n) %>% 
+      ungroup() %>% pull(dup) -> dup_req
+    
+    output$err2 <- renderText(
+      validate(
+        need(!any(dup_req == 1), '- Duplicated samples exist')
+      )
+    )
+    
+    enable("start_krsa")
+    
+    req(!any(dup_req == 1), input$sampleName_col)
     
     #hgf <<- data_file$filtered_data
     
     data_file$pw_200 <- krsa_extractEndPointMaxExp(data_file$filtered_data, chiptype)
+    print("pass1")
     data_file$pw <- krsa_extractEndPoint(data_file$filtered_data, chiptype)
-  
+    print("pass2")
     data_file$pep_maxSig <- krsa_filter_lowPeps(data_file$pw_200, input$max_sig_qc)
+    print("pass3")
     
     incProgress(3/10, message = "Fitting the linear model ...")
     data_file$data_modeled <- krsa_scaleModel(data_file$pw, data_file$pep_maxSig)
@@ -208,7 +253,8 @@ server <- function(input, output, session) {
     
     output$init_peps <- renderValueBox({
       valueBox(
-        paste0(length(data_file$pep_init)), "Initial Peptides", icon = icon("list-ul")
+        paste0(length(data_file$pep_init)), "Initial Peptides", icon = icon("list-ul"),
+        color = "yellow"
       )
     })
     output$qc_maxSig_peps <- renderValueBox({
@@ -230,16 +276,33 @@ server <- function(input, output, session) {
       )
     })
     
+    updateNavbarPage(session, "tabs", selected = "Results: Overview")
+    
     output$lfc_table <- renderDataTable({
       data_file$lfc_table
     })
+    
+    output$lfc_table_download <- downloadHandler(
+      filename = function() {
+        paste("LFC_Table", ".txt", sep = "")
+      },
+      content = function(file) {
+        write_delim(data_file$lfc_table, file, delim = "\t")
+      }
+    )
     
     output$model_table <- renderDataTable({
       data_file$data_modeled$scaled
     })
     
-    
-    #fjjf <<- data_file$pep_sig
+    output$model_table_download <- downloadHandler(
+      filename = function() {
+        paste("Model_Table", ".txt", sep = "")
+      },
+      content = function(file) {
+        write_delim(data_file$data_modeled$scaled, file, delim = "\t")
+      }
+    )
     
     #krsa_heatmap(jhg, fjjf)
     incProgress(5/10, message = "Genrating Figures")
@@ -285,7 +348,8 @@ server <- function(input, output, session) {
     chipCov <<- KRSA_coverage_STK_PamChip_87102_v1
     KRSA_file <<- KRSA_Mapping_STK_PamChip_87102_v1
     
-    krsa(data_file$pep_sig, return_count = T, itr = input$itr_num) -> data_file$krsa
+    krsa(data_file$pep_sig, return_count = T, itr = input$itr_num, 
+         seed = if(input$use_seed) input$use_seed_num else runif(1, 1, 100) %>% round()) -> data_file$krsa
     
     output$krsa_table <- renderDataTable({
       data_file$krsa$KRSA_Table %>% arrange(desc(abs(Z)))
@@ -322,8 +386,7 @@ server <- function(input, output, session) {
     #   
     # })
     
-    enable("start_krsa")
-    
+
     })
   })
   

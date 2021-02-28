@@ -7,11 +7,14 @@ library(reactable)
 library(shinydashboard)
 library(shinycssloaders)
 library(magrittr)
+library(bsplus)
 
 shinyUI(navbarPage(title = "KRSA",
                    header = tagList(
                      useShinydashboard(),
                      useShinyjs(),
+                     use_bs_popover(),
+                     use_bs_tooltip(),
                      #extendShinyjs(script = "scripts/js_functions.js", functions = c("shinyjs.init")),
                      ## css style ----
                      tags$style(HTML("
@@ -22,8 +25,8 @@ shinyUI(navbarPage(title = "KRSA",
                         }
                            
                          .box.box-solid.box-primary>.box-header {
-                          color:#fff;
-                          background:#bfbfbf
+                          color: white;
+                          background:#7190a7;
                                              }
                          
                          .box.box-solid.box-primary{
@@ -74,7 +77,16 @@ shinyUI(navbarPage(title = "KRSA",
                               shinydashboard::box(title = "Signal",width = 6, status = "primary",solidHeader=TRUE,
                                      fileInput("input_file", label = "Upload the Median_SigmBg crosstab file: ",
                                                accept = c("txt")
-                                     ),
+                                     ) %>% 
+                                       shinyInput_label_embed(
+                                         shiny_iconlink() %>%
+                                           bs_embed_popover(
+                                             title = "File Upload", content = "Upload your Median_SigmBg BioNavigator crosstab view file here. Must be a .txt file and tab delimited", 
+                                             placement = "left", trigger = "focus"
+                                           )
+                                       )
+                                     
+                                     ,
                                      actionButton("load_ex_data", "Use Example Dataset")
                               ),
                               # box(title = "Optional: Signal Saturation",width = 4,collapsible = T,collapsed = T,
@@ -86,9 +98,18 @@ shinyUI(navbarPage(title = "KRSA",
                               shinydashboard::box(title = "Kinase Mapping", width = 6,status = "primary",solidHeader=TRUE,
                                      fileInput("map_file", label = "Upload a kinase-substrate association file: ",
                                                accept = c("txt")
-                                     ),
+                                     ) %>% 
+                                       shinyInput_label_embed(
+                                         shiny_iconlink() %>%
+                                           bs_embed_popover(
+                                             title = "File Upload", content = "Upload your kinase-substrate association file here. Must be a .txt file and tab delimited. Two columns: Kinase and Peptide. Peptides separated by commas", 
+                                             placement = "left", trigger = "focus"
+                                           )
+                                       )
+                                     
+                                     ,
                                      actionButton("load_map_file", "Use KRSA mapping")
-                              )
+                              ) 
                             ),
                             
                             fluidRow(
@@ -103,7 +124,7 @@ shinyUI(navbarPage(title = "KRSA",
                             fluidRow(
                               column(12,align="center",
                                   actionButton("input_step_btn", "Go to Step 2", icon("paper-plane"), 
-                                               style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                               style="color: #fff; background-color: #7190a7; border-color: #2e6da4"),
                                   tags$hr(),span(textOutput("err"), style="color:red")
                                   )
                             ),
@@ -117,35 +138,108 @@ shinyUI(navbarPage(title = "KRSA",
                               shinydashboard::box(title = "Design",width = 6, status = "primary",solidHeader=TRUE,
                                                   selectInput("group_col", label = "Select Column to define groups: ",
                                                             choices = list(""), selected = NULL
-                                                  ),
+                                                  ) %>% 
+                                                    shinyInput_label_embed(
+                                                      shiny_iconlink() %>%
+                                                        bs_embed_popover(
+                                                          title = "Column Selection", content = "Choose the column the will define the different group samples", 
+                                                          placement = "left", trigger = "focus"
+                                                        )
+                                                    )
+                                                  
+                                                  ,
                                                   selectInput("ctl_group", label = "Select the Control Group:",
                                                               choices = list("")
                                                   ),
                                                   selectInput("case_group", label = "Select the Case Group:",
                                                               choices = list("")
                                                   ),
-                                                  selectInput("sampleName_col", label = "Select Columns to define uniques samples: ",
+                                                  selectInput("sampleName_col", label = "Select Columns to define unique samples: ",
                                                               choices = list(""), selected = NULL, multiple = T
-                                                  ),
+                                                  ) %>% 
+                                                    shinyInput_label_embed(
+                                                      shiny_iconlink() %>%
+                                                        bs_embed_popover(
+                                                          title = "Columns Selection", content = "Choose the column or multiple columns that will uniquely define each individual sample", 
+                                                          placement = "left", trigger = "focus"
+                                                        )
+                                                    )
+                                                  
+                                                  ,
                                                   
                               ),
                               
                               shinydashboard::box(title = "QC Options", width = 6,status = "primary",solidHeader=TRUE,
-                                                  sliderInput("max_sig_qc", "Max Exposure Signal", min = 1, max = 100, value = 5, step = 1),
-                                                  sliderInput("r2_qc", "Min R2", min = 0, max = 0.99, value = 0.90, step = 0.05)
+                                                  sliderInput("max_sig_qc", "Max Exposure Signal", min = 1, max = 100, value = 5, step = 1) %>% 
+                                                    shinyInput_label_embed(
+                                                      shiny_iconlink() %>%
+                                                        bs_embed_popover(
+                                                          title = "Min Max Exposure", content = "Used to filter out peptides that have low signals. This will check the signals at max exposure and filter peptides that have lower signals that this value", 
+                                                          placement = "left", trigger = "focus"
+                                                        )
+                                                    )
+                                                   
+                                                  ,
+                                                  sliderInput("r2_qc", "Min R2", min = 0, max = 0.99, value = 0.90, step = 0.05) %>% 
+                                                    shinyInput_label_embed(
+                                                      shiny_iconlink() %>%
+                                                        bs_embed_popover(
+                                                          title = "Min R2", content = "Used to filter out peptides that have nonlinear fit. This will the R2 of the linear model and filter peptides that have R2 lower than this value", 
+                                                          placement = "left", trigger = "focus"
+                                                        )
+                                                    )
                               )
 
                             ),
                             
                             fluidRow(
                               shinydashboard::box(title = "Fold Change Options",width = 6, status = "primary",solidHeader=TRUE,
-                                                  sliderInput("lfc_thr", "Log2 Fold Change Cutoff", min = 0, max = 5, value = 0.2, step = 0.05),
-                                                  switchInput("by_chip", "By Chip?", value = FALSE, onLabel = "Yes", offLabel = "No")
+                                                  sliderInput("lfc_thr", "Log2 Fold Change Cutoff", min = 0, max = 5, value = 0.2, step = 0.05) %>% 
+                                                    shinyInput_label_embed(
+                                                      shiny_iconlink() %>%
+                                                        bs_embed_popover(
+                                                          title = "LFC Cutoff", content = "Used as the cutoff of the log2 fold change values to determine the differentially phosphorylated peptides.", 
+                                                          placement = "left", trigger = "focus"
+                                                        )
+                                                    )
+                                                  ,
+                                                  switchInput("by_chip", "By Chip?", value = FALSE, onLabel = "Yes", offLabel = "No") %>% 
+                                                    shinyInput_label_embed(
+                                                      shiny_iconlink() %>%
+                                                        bs_embed_popover(
+                                                          title = "By Chip", content = "Used to run the perumation test within each chip. Your data must have more than one chip and your group samples are found within each chip", 
+                                                          placement = "left", trigger = "focus"
+                                                        )
+                                                    )
                               ),
                               shinydashboard::box(title = "Sampling Options", width = 6,status = "primary",solidHeader=TRUE,
-                                                  sliderInput("itr_num", "Number of Iterations", min = 100, max = 2000, value = 500, step = 100),
-                                                  switchInput("use_seed", "Use Seed?", value = FALSE, onLabel = "Yes", offLabel = "No"),
-                                                  numericInput("use_seed_num", "Input Seed Number: ", value = 123)
+                                                  sliderInput("itr_num", "Number of Iterations", min = 100, max = 2000, value = 500, step = 100) %>% 
+                                                    shinyInput_label_embed(
+                                                      shiny_iconlink() %>%
+                                                        bs_embed_popover(
+                                                          title = "Iteration", content = "The number of iterations for the permutation test", 
+                                                          placement = "left", trigger = "focus"
+                                                        )
+                                                    )
+                                                  
+                                                  ,
+                                                  switchInput("use_seed", "Use Seed?", value = FALSE, onLabel = "Yes", offLabel = "No") %>% 
+                                                    shinyInput_label_embed(
+                                                      shiny_iconlink() %>%
+                                                        bs_embed_popover(
+                                                          title = "Seed", content = "An option to run the analysis with a seed number to reproduce the results of the permutation test", 
+                                                          placement = "left", trigger = "focus"
+                                                        )
+                                                    )
+                                                    ,
+                                                  numericInput("use_seed_num", "Input Seed Number: ", value = 123) %>% 
+                                                    shinyInput_label_embed(
+                                                      shiny_iconlink() %>%
+                                                        bs_embed_popover(
+                                                          title = "Seed", content = "A seed number that can be used later to reproduce the results of the permutation test",
+                                                          placement = "left", trigger = "focus"
+                                                        )
+                                                    )
                               )
                             ),
                             
@@ -153,7 +247,7 @@ shinyUI(navbarPage(title = "KRSA",
                             fluidRow(
                               column(12,align="center",
                                      actionButton("start_krsa", "Run KRSA", icon("paper-plane"), 
-                                                  style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                                  style="color: #fff; background-color: #7190a7; border-color: #2e6da4"),
                                      tags$hr(),span(textOutput("err2"), style="color:red")
                               )
                             )   
@@ -171,18 +265,19 @@ shinyUI(navbarPage(title = "KRSA",
                                        
                                        fluidRow(
                                         shinydashboard::box(title = "Peptides Selection",width = 12, status = "primary",solidHeader=TRUE,
-                                        valueBoxOutput("init_peps", width = 3),
+                                        valueBoxOutput("init_peps", width = 3) %>% 
+                                          bs_embed_tooltip(title = "Initial number of Peptides in the input file"),
                                         valueBoxOutput("qc_maxSig_peps", width = 3),
                                         valueBoxOutput("qc_r2_peps", width = 3),
                                         valueBoxOutput("lfc_peps", width = 3),
                                        )),
                                        
                                        fluidRow(
-                                         shinydashboard::box(title = "LFC Table",width = 6, status = "primary",solidHeader=TRUE,
+                                         shinydashboard::box(title = "LFC Table",width = 6, status = "primary",solidHeader=TRUE,collapsible = T, collapsed = T,
                                                              dataTableOutput("lfc_table"),
                                                              downloadButton("lfc_table_download", label = "Save Table")
                                          ),
-                                         shinydashboard::box(title = "Model Table", width = 6,status = "primary",solidHeader=TRUE,
+                                         shinydashboard::box(title = "Model Table", width = 6,status = "primary",solidHeader=TRUE,collapsible = T, collapsed = T,
                                                              dataTableOutput("model_table"),
                                                              downloadButton("model_table_download", label = "Save Table")
                                          )
@@ -194,7 +289,7 @@ shinyUI(navbarPage(title = "KRSA",
                                        fluidRow(
                                          shinydashboard::box(title = "Options",width = 4, status = "primary",solidHeader=TRUE,
                                                              selectInput("heatmap_op1", "Data",
-                                                                         choices = c("Normalized", "Normal"), label = "Option"),
+                                                                         choices = c("Normal", "Normalized"), label = "Data"),
                                                              selectInput("heatmap_op2", "Clustering Method",
                                                                          choices = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median","centroid"),
                                                                          selected = "ward.D2"
