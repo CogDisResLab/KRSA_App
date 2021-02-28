@@ -1,9 +1,6 @@
-
 library(shiny)
 library(shinyjs)
-library(shinyBS)
 library(shinyWidgets)
-library(reactable)
 library(shinydashboard)
 library(shinycssloaders)
 library(magrittr)
@@ -102,7 +99,7 @@ shinyUI(navbarPage(title = "KRSA",
                                        shinyInput_label_embed(
                                          shiny_iconlink() %>%
                                            bs_embed_popover(
-                                             title = "File Upload", content = "Upload your kinase-substrate association file here. Must be a .txt file and tab delimited. Two columns: Kinase and Peptide. Peptides separated by commas", 
+                                             title = "File Upload", content = "Upload your kinase-substrate association file here. Must be a .txt file and tab delimited. Two columns: Substrates (Peptide IDs on pamchip) and Kinases Kinases separated by spaces", 
                                              placement = "left", trigger = "focus"
                                            )
                                        )
@@ -203,14 +200,15 @@ shinyUI(navbarPage(title = "KRSA",
                                                         )
                                                     )
                                                   ,
-                                                  switchInput("by_chip", "By Chip?", value = FALSE, onLabel = "Yes", offLabel = "No") %>% 
-                                                    shinyInput_label_embed(
-                                                      shiny_iconlink() %>%
-                                                        bs_embed_popover(
-                                                          title = "By Chip", content = "Used to run the perumation test within each chip. Your data must have more than one chip and your group samples are found within each chip", 
-                                                          placement = "left", trigger = "focus"
-                                                        )
-                                                    )
+                                                  # byChip UI option
+                                                  # switchInput("by_chip", "By Chip?", value = FALSE, onLabel = "Yes", offLabel = "No") %>% 
+                                                  #   shinyInput_label_embed(
+                                                  #     shiny_iconlink() %>%
+                                                  #       bs_embed_popover(
+                                                  #         title = "By Chip", content = "Used to run the perumation test within each chip. Your data must have more than one chip and your group samples are found within each chip", 
+                                                  #         placement = "left", trigger = "focus"
+                                                  #       )
+                                                  #   )
                               ),
                               shinydashboard::box(title = "Sampling Options", width = 6,status = "primary",solidHeader=TRUE,
                                                   sliderInput("itr_num", "Number of Iterations", min = 100, max = 2000, value = 500, step = 100) %>% 
@@ -266,18 +264,21 @@ shinyUI(navbarPage(title = "KRSA",
                                        fluidRow(
                                         shinydashboard::box(title = "Peptides Selection",width = 12, status = "primary",solidHeader=TRUE,
                                         valueBoxOutput("init_peps", width = 3) %>% 
-                                          bs_embed_tooltip(title = "Initial number of Peptides in the input file"),
-                                        valueBoxOutput("qc_maxSig_peps", width = 3),
-                                        valueBoxOutput("qc_r2_peps", width = 3),
-                                        valueBoxOutput("lfc_peps", width = 3),
+                                          bs_embed_tooltip(title = "Initial number of peptides in the input file"),
+                                        valueBoxOutput("qc_maxSig_peps", width = 3) %>% 
+                                          bs_embed_tooltip(title = "Number of peptides that passed QC 1: Min signal"),
+                                        valueBoxOutput("qc_r2_peps", width = 3) %>% 
+                                          bs_embed_tooltip(title = "Number of peptides that passed QC 2: R2 values"),
+                                        valueBoxOutput("lfc_peps", width = 3) %>% 
+                                          bs_embed_tooltip(title = "Number of peptides that passed LFC cutoff value"),
                                        )),
                                        
                                        fluidRow(
-                                         shinydashboard::box(title = "LFC Table",width = 6, status = "primary",solidHeader=TRUE,collapsible = T, collapsed = T,
+                                         shinydashboard::box(title = "LFC Table",width = 6, status = "primary",solidHeader=TRUE,collapsible = T, collapsed = F,
                                                              dataTableOutput("lfc_table"),
                                                              downloadButton("lfc_table_download", label = "Save Table")
                                          ),
-                                         shinydashboard::box(title = "Model Table", width = 6,status = "primary",solidHeader=TRUE,collapsible = T, collapsed = T,
+                                         shinydashboard::box(title = "Model Table", width = 6,status = "primary",solidHeader=TRUE,collapsible = T, collapsed = F,
                                                              dataTableOutput("model_table"),
                                                              downloadButton("model_table_download", label = "Save Table")
                                          )
@@ -359,6 +360,5 @@ shinyUI(navbarPage(title = "KRSA",
                               )
                             )
                             )
-                   
                    
 ))

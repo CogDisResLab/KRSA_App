@@ -1,6 +1,5 @@
 library(shiny)
 library(tidyverse)
-library(reactable)
 library(KRSA)
 library(shinydashboard)
 library(broom)
@@ -8,7 +7,6 @@ library(igraph)
 
 source("funcs/krsa_violin_plot_2.R")
 source("funcs/krsa_ball_model_2.R")
-
 
 server <- function(input, output, session) {
   
@@ -53,37 +51,49 @@ server <- function(input, output, session) {
       },
       error=function(cond) {
         message("Failed to parase the file")
-        #message(cond)
-        # Choose a return value in case of error
         return(1)
       }
     )
-    
-    #tryCatch(krsa_read(inFile$datapath))
-    
-    #data_file$data <- krsa_read(inFile$datapath)
     
   })
 
   observe({
     req(input$map_file)
     inFile <- input$map_file
-    map_file$final_map <- read_delim(inFile$datapath, delim = "\t")
+    
+    map_file$final_map <- tryCatch(
+      {
+        
+        read_delim(inFile$datapath, delim = "\t") 
+        
+      },
+      error=function(cond) {
+        message("Failed to parase the kin-sub file")
+        return(1)
+      }
+    )
     
   })
   
   ## preview files -----
   output$sig_tbl_preview <- renderTable({
+    req(data_file$data)
       validate(
-        need(data_file$data == 1 , '- Wrong Fromat')
+        need(data_file$data != 1, '- Failed to parse the input file'),
+        need(colnames(data_file$data)[colnames(data_file$data) %in% c("ExposureTime", "Signal","Cycle", "Peptide", "SampleName")] != 5, "- One of these column is missing from the input file (ExposureTime, Signal,Cycle, Peptide, SampleName)")
+        
       )
 
-    req(data_file$data)
     data_file$data %>% head(6)
   })
   
   output$map_tbl_preview <- renderTable({
     req(map_file$final_map)
+    validate(
+      need(map_file$final_map != 1, '- Failed to parse the kinase-substrate file'),
+      need(all(colnames(map_file$final_map) %in% c("Substrates", "Kinases")), "- One of these column is missing from the kinase-substrate file (Substrates, Kinases)")
+    )
+    
     map_file$final_map %>% head(5)
   })
   
@@ -93,15 +103,17 @@ server <- function(input, output, session) {
     output$err <- renderText(
       validate(
         need(data_file$data, '- You need to load the signal data!'),
-        need(!all(colnames(data_file$data) %in% c("ExposureTime", "Signal","Cycle", "Peptide", "SampleName")), "One of these column is missing (ExposureTime, Signal,Cycle, Peptide, SampleName)"),
-        need(map_file$final_map, '- You need to load the kinase-substarte mapping file!')
+        need(data_file$data != 1, '- Failed to parse the input file'),
+        need(colnames(data_file$data)[colnames(data_file$data) %in% c("ExposureTime", "Signal","Cycle", "Peptide", "SampleName")] != 5, "- One of these column is missing from the input file (ExposureTime, Signal,Cycle, Peptide, SampleName)"),
+        need(map_file$final_map, '- You need to load the kinase-substarte mapping file!'),
+        need(map_file$final_map != 1, '- Failed to parse the kinase-substarte file'),
+        need(all(colnames(map_file$final_map) %in% c("Substrates", "Kinases")), "- One of these column is missing from the kinase-substrate file (Substrates, Kinases)")
       )
     )
     
     req(data_file$data, map_file$final_map, 
         !all(colnames(data_file$data) %in% c("ExposureTime", "Signal","Cycle", "Peptide", "SampleName")))
     
-    # TODO: check if is STK or PTK
     group_colms <- colnames(data_file$data) %>% unique()
     group_colms <- group_colms[!group_colms %in% c("ExposureTime", "Signal","Cycle", "Peptide")]
     updateSelectInput(session, "group_col", choices = group_colms, 
@@ -119,21 +131,16 @@ server <- function(input, output, session) {
       print(input$use_seed)
       toggleState(id = "use_seed_num", condition = input$use_seed == T)
     })
-    
-    
-    
-    
+
     showTab(inputId = "tabs", target = "Step2: Design Options")
     updateNavbarPage(session, "tabs", selected = "Step2: Design Options")
-    
-    
-    
-    
-    
+ 
   })
   
   # Step2: starts KRSA -----
   observeEvent(input$start_krsa, {
+    
+    # TODO select samples 
     
     # Catch Errors for KRSA -----
     output$err2 <- renderText(
@@ -149,21 +156,22 @@ server <- function(input, output, session) {
     
     withProgress(message = "Loading Data", value = 0, {
       
+    data_file$data$Peptide %>% unique() %>% {any(. %in% c("K6PL_766_778", "MPH6_140_152", "ACM4_456_468"))} -> check_chip
     
-    
-    chiptype <- "STK"
-
+    if(check_chip) {
+      chiptype <- "STK"
+    } else {
+      chiptype <- "PTK"
+    }
+      
     showTab(inputId = "tabs", target = "Results: Overview")
     showTab(inputId = "tabs", target = "Results: Kinases")
     showTab(inputId = "tabs", target = "Results: Network")
-    
-    
     
     output$summary_options <- renderInfoBox({
       infoBox(
         "Design Options Selected: ", 
         HTML(paste(
-          # TODO update chip type based on input
           paste0("Chip Type = ", chiptype),br(),
           paste0("Control Group = ",input$ctl_group),br(),
           paste0("Case Group = ",input$case_group),br(),
@@ -174,8 +182,6 @@ server <- function(input, output, session) {
                  ifelse(input$use_seed, "Yes", "No")
                  ),br(),
           ifelse(input$use_seed, paste0("Seed Number= ", round(input$use_seed_num)), "")
-         
-                   
                )),
         
         icon = icon("list-ul"),
@@ -195,10 +201,9 @@ server <- function(input, output, session) {
     
     data_file$filtered_data %>% 
       mutate(Group = .data[[input$group_col]]) %>% 
-      unite("SampleName",all_of(input$sampleName_col), remove = F) -> data_file$filtered_data
+      unite("SampleName",all_of(c(input$group_col,input$sampleName_col)), remove = F) -> data_file$filtered_data
     
     # group by sample
-    
     data_file$filtered_data %>% 
       select(-Cycle, -Signal, -Peptide, -ExposureTime) %>% 
       distinct(.keep_all = T) %>% 
@@ -218,38 +223,56 @@ server <- function(input, output, session) {
     
     req(!any(dup_req == 1), input$sampleName_col)
     
-    #hgf <<- data_file$filtered_data
-    
     data_file$pw_200 <- krsa_extractEndPointMaxExp(data_file$filtered_data, chiptype)
-    print("pass1")
     data_file$pw <- krsa_extractEndPoint(data_file$filtered_data, chiptype)
-    print("pass2")
     data_file$pep_maxSig <- krsa_filter_lowPeps(data_file$pw_200, input$max_sig_qc)
-    print("pass3")
-    
+
     incProgress(3/10, message = "Fitting the linear model ...")
     data_file$data_modeled <- krsa_scaleModel(data_file$pw, data_file$pep_maxSig)
 
     data_file$pep_nonLinear <- krsa_filter_nonLinear(data_file$data_modeled$scaled, input$r2_qc)
 
     incProgress(4/10, message = "Calculating LFC")
+    
+    # data_file$data_modeled$scaled %>% 
+    #   select(Barcode, Group) %>% 
+    #   distinct(.keep_all = T) %>% 
+    #   group_by(Barcode) %>% 
+    #   count() %>% mutate(dup = if_else(n == 2, T, F)) %>% 
+    #   pull(dup) %>% all(.) ->> found_inEachChip
+    # 
+    # print("foun_inChip")
+    # print(found_inEachChip)
+    # 
+    # print("both_tests")
+    # print(input$by_chip && found_inEachChip)
+    # 
+    # output$err2 <- renderText(
+    # validate(
+    #   # Check if more than one chip
+    #   need(!input$by_chip && found_inEachChip, " - For byChip analysis, samples must be found in ech chip")
+    # )
+    # )
+    # 
+    # req(!all(input$by_chip && !found_inEachChip))
+    
     data_file$lfc_table <- krsa_group_diff(data_file$data_modeled$scaled,
                                            c(input$case_group, input$ctl_group),
                                            data_file$pep_nonLinear, byChip = F)
     
-    # TODO automate this
-    #data_file$pep_sig <- krsa_get_diff(data_file$lfc_table, LFC, lfc_thr = input$lfc_thr)
+    # TODO byChip option
+    # if(input$by_chip) {
+    #   data_file$pep_sig <- krsa_get_diff_byChip(data_file$lfc_table, LFC, lfc_thr = input$lfc_thr)
+    # } else {
+    #   data_file$lfc_table %>% 
+    #       filter(LFC >= input$lfc_thr | LFC <= input$lfc_thr*-1) %>%
+    #       pull(Peptide) -> data_file$pep_sig
+    # }
     
-    data_file$lfc_table %>% 
-      filter(LFC >= input$lfc_thr | LFC <= input$lfc_thr*-1) %>% 
+    data_file$lfc_table %>%
+      filter(LFC >= input$lfc_thr | LFC <= input$lfc_thr*-1) %>%
       pull(Peptide) -> data_file$pep_sig
     
-    #jhg <<- data_file$data_modeled$normalized
-    
-    #jhg$Peptide %>% head(10) %>% unique() -> ppp
-    
-    #krsa_heatmap(jhg, ppp)
-
     
     output$init_peps <- renderValueBox({
       valueBox(
@@ -304,7 +327,6 @@ server <- function(input, output, session) {
       }
     )
     
-    #krsa_heatmap(jhg, fjjf)
     incProgress(5/10, message = "Genrating Figures")
     
     output$heatmap <- renderPlot({
@@ -338,18 +360,21 @@ server <- function(input, output, session) {
       krsa_waterfall(data_file$lfc_table, input$lfc_thr, byChip = F)
     })
     
-    
-    
-    
     # Step4: Kinase Analysis -----
     
     incProgress(8/10, message = "Resampling analysis")
     
-    chipCov <<- KRSA_coverage_STK_PamChip_87102_v1
-    KRSA_file <<- KRSA_Mapping_STK_PamChip_87102_v1
+    #chipCov <<- KRSA_coverage_STK_PamChip_87102_v1
+    #KRSA_file <<- KRSA_Mapping_STK_PamChip_87102_v1
+    
+    map_file$final_cov <- separate_rows(map_file$final_map, Kinases, sep = "\\s+") %>% 
+      rename(Kin = Kinases)
     
     krsa(data_file$pep_sig, return_count = T, itr = input$itr_num, 
-         seed = if(input$use_seed) input$use_seed_num else runif(1, 1, 100) %>% round()) -> data_file$krsa
+         seed = if(input$use_seed) input$use_seed_num else runif(1, 1, 100) %>% round(),
+         map_file = map_file$final_map,
+         cov_file = map_file$final_cov
+         ) -> data_file$krsa
     
     output$krsa_table <- renderDataTable({
       data_file$krsa$KRSA_Table %>% arrange(desc(abs(Z)))
@@ -362,9 +387,8 @@ server <- function(input, output, session) {
         theme(strip.text = element_text(size = 20))
     })
     
-    # TODO
     output$ReverseKRSA <- renderPlot({
-      krsa_reverse_krsa_plot(chipCov, data_file$lfc_table,
+      krsa_reverse_krsa_plot(map_file$final_cov, data_file$lfc_table,
                              filter(data_file$krsa$KRSA_Table, abs(Z) >= input$ReverseKRSA_opt1) %>% pull(Kinase)
                              ,lfc_thr = input$lfc_thr, byChip = F)
     })
@@ -389,12 +413,5 @@ server <- function(input, output, session) {
 
     })
   })
-  
-
-  
-  
-    
-
-
   
 }
