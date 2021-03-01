@@ -1,3 +1,4 @@
+## Libraries ----
 library(shiny)
 library(shinyjs)
 library(shinyWidgets)
@@ -6,13 +7,13 @@ library(shinycssloaders)
 library(magrittr)
 library(bsplus)
 
+## Shiny UI ----
 shinyUI(navbarPage(title = "KRSA",
                    header = tagList(
                      useShinydashboard(),
                      useShinyjs(),
                      use_bs_popover(),
                      use_bs_tooltip(),
-                     #extendShinyjs(script = "scripts/js_functions.js", functions = c("shinyjs.init")),
                      ## css style ----
                      tags$style(HTML("
                         .shiny-output-error-validation {
@@ -55,16 +56,7 @@ shinyUI(navbarPage(title = "KRSA",
 
                    # Home Panel -----
                    tabPanel("Home",
-                            includeHTML("home.html"),
-                            tags$script(src = "plugins/scripts.js"),
-                            tags$head(
-                              tags$link(rel = "stylesheet", 
-                                        type = "text/css", 
-                                        href = "plugins/font-awesome-4.7.0/css/font-awesome.min.css"),
-                              tags$link(rel = "icon", 
-                                        type = "image/png", 
-                                        href = "images/logo_icon.png")
-                            )
+                            includeHTML("home.html")
                    ),
                    
                    # Step1: Input Panel -----
@@ -76,9 +68,10 @@ shinyUI(navbarPage(title = "KRSA",
                                                accept = c("txt")
                                      ) %>% 
                                        shinyInput_label_embed(
-                                         shiny_iconlink() %>%
+                                         htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>% 
+                                         #shiny_iconlink(id = "hi", href= NULL) %>%
                                            bs_embed_popover(
-                                             title = "File Upload", content = "Upload your Median_SigmBg BioNavigator crosstab view file here. Must be a .txt file and tab delimited", 
+                                             title = "File Upload",content  = "Upload your Median_SigmBg BioNavigator crosstab view file here. Must be a .txt file and tab delimited", 
                                              placement = "left", trigger = "focus"
                                            )
                                        )
@@ -97,7 +90,7 @@ shinyUI(navbarPage(title = "KRSA",
                                                accept = c("txt")
                                      ) %>% 
                                        shinyInput_label_embed(
-                                         shiny_iconlink() %>%
+                                         htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
                                            bs_embed_popover(
                                              title = "File Upload", content = "Upload your kinase-substrate association file here. Must be a .txt file and tab delimited. Two columns: Substrates (Peptide IDs on pamchip) and Kinases Kinases separated by spaces", 
                                              placement = "left", trigger = "focus"
@@ -137,7 +130,7 @@ shinyUI(navbarPage(title = "KRSA",
                                                             choices = list(""), selected = NULL
                                                   ) %>% 
                                                     shinyInput_label_embed(
-                                                      shiny_iconlink() %>%
+                                                      htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
                                                         bs_embed_popover(
                                                           title = "Column Selection", content = "Choose the column the will define the different group samples", 
                                                           placement = "left", trigger = "focus"
@@ -155,7 +148,7 @@ shinyUI(navbarPage(title = "KRSA",
                                                               choices = list(""), selected = NULL, multiple = T
                                                   ) %>% 
                                                     shinyInput_label_embed(
-                                                      shiny_iconlink() %>%
+                                                      htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
                                                         bs_embed_popover(
                                                           title = "Columns Selection", content = "Choose the column or multiple columns that will uniquely define each individual sample", 
                                                           placement = "left", trigger = "focus"
@@ -169,7 +162,7 @@ shinyUI(navbarPage(title = "KRSA",
                               shinydashboard::box(title = "QC Options", width = 6,status = "primary",solidHeader=TRUE,
                                                   sliderInput("max_sig_qc", "Max Exposure Signal", min = 1, max = 100, value = 5, step = 1) %>% 
                                                     shinyInput_label_embed(
-                                                      shiny_iconlink() %>%
+                                                      htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
                                                         bs_embed_popover(
                                                           title = "Min Max Exposure", content = "Used to filter out peptides that have low signals. This will check the signals at max exposure and filter peptides that have lower signals that this value", 
                                                           placement = "left", trigger = "focus"
@@ -179,7 +172,7 @@ shinyUI(navbarPage(title = "KRSA",
                                                   ,
                                                   sliderInput("r2_qc", "Min R2", min = 0, max = 0.99, value = 0.90, step = 0.05) %>% 
                                                     shinyInput_label_embed(
-                                                      shiny_iconlink() %>%
+                                                      htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
                                                         bs_embed_popover(
                                                           title = "Min R2", content = "Used to filter out peptides that have nonlinear fit. This will the R2 of the linear model and filter peptides that have R2 lower than this value", 
                                                           placement = "left", trigger = "focus"
@@ -193,7 +186,7 @@ shinyUI(navbarPage(title = "KRSA",
                               shinydashboard::box(title = "Fold Change Options",width = 6, status = "primary",solidHeader=TRUE,
                                                   sliderInput("lfc_thr", "Log2 Fold Change Cutoff", min = 0, max = 5, value = 0.2, step = 0.05) %>% 
                                                     shinyInput_label_embed(
-                                                      shiny_iconlink() %>%
+                                                      htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
                                                         bs_embed_popover(
                                                           title = "LFC Cutoff", content = "Used as the cutoff of the log2 fold change values to determine the differentially phosphorylated peptides.", 
                                                           placement = "left", trigger = "focus"
@@ -203,7 +196,7 @@ shinyUI(navbarPage(title = "KRSA",
                                                   # byChip UI option
                                                   # switchInput("by_chip", "By Chip?", value = FALSE, onLabel = "Yes", offLabel = "No") %>% 
                                                   #   shinyInput_label_embed(
-                                                  #     shiny_iconlink() %>%
+                                                  #     htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
                                                   #       bs_embed_popover(
                                                   #         title = "By Chip", content = "Used to run the perumation test within each chip. Your data must have more than one chip and your group samples are found within each chip", 
                                                   #         placement = "left", trigger = "focus"
@@ -213,7 +206,7 @@ shinyUI(navbarPage(title = "KRSA",
                               shinydashboard::box(title = "Sampling Options", width = 6,status = "primary",solidHeader=TRUE,
                                                   sliderInput("itr_num", "Number of Iterations", min = 100, max = 2000, value = 500, step = 100) %>% 
                                                     shinyInput_label_embed(
-                                                      shiny_iconlink() %>%
+                                                      htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
                                                         bs_embed_popover(
                                                           title = "Iteration", content = "The number of iterations for the permutation test", 
                                                           placement = "left", trigger = "focus"
@@ -223,7 +216,7 @@ shinyUI(navbarPage(title = "KRSA",
                                                   ,
                                                   switchInput("use_seed", "Use Seed?", value = FALSE, onLabel = "Yes", offLabel = "No") %>% 
                                                     shinyInput_label_embed(
-                                                      shiny_iconlink() %>%
+                                                      htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
                                                         bs_embed_popover(
                                                           title = "Seed", content = "An option to run the analysis with a seed number to reproduce the results of the permutation test", 
                                                           placement = "left", trigger = "focus"
@@ -232,7 +225,7 @@ shinyUI(navbarPage(title = "KRSA",
                                                     ,
                                                   numericInput("use_seed_num", "Input Seed Number: ", value = 123) %>% 
                                                     shinyInput_label_embed(
-                                                      shiny_iconlink() %>%
+                                                      htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
                                                         bs_embed_popover(
                                                           title = "Seed", content = "A seed number that can be used later to reproduce the results of the permutation test",
                                                           placement = "left", trigger = "focus"
