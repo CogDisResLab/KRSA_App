@@ -470,3 +470,9 @@ div#ss-connect-dialog a:visited {
 		display: none;
 	}
 }
+
+#img-id{
+  position: fixed;
+  left: 1px;
+  top: 1px;
+}

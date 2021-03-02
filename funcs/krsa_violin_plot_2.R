@@ -23,9 +23,9 @@ krsa_violin_plot_2 <- function(data, peptides,facet = T, facet_factor,samples = 
     {if(!is.null(groups)) filter(.,Group %in% groups) else .} %>%
     ggplot(aes(SampleName, slope)) + 
     geom_violin(aes(fill = Group), show.legend = F, trim = F, width=0.4) +
-    geom_boxplot(width=0.1, fill="white") +
+    geom_boxplot(aes(fill = Group),width=0.1) +
     #geom_dotplot(binaxis='y', stackdir='center', dotsize=1, alpha = 1/2) +
-    geom_line(aes(group = Peptide), alpha = 1/2) +
+    #geom_line(aes(group = Peptide), alpha = 1/2) +
     labs(
       x = "",
       y = "Signal Intensity"
