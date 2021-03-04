@@ -14,6 +14,17 @@ shinyUI(navbarPage(title = "KRSA",
                      useShinyjs(),
                      use_bs_popover(),
                      use_bs_tooltip(),
+                     # GA Tag ------
+                     HTML(
+                       "<script async src='https://www.googletagmanager.com/gtag/js?id=G-0KRSJDY68Y'></script>
+                         <script>
+                         window.dataLayer = window.dataLayer || [];
+                       function gtag(){dataLayer.push(arguments);}
+                       gtag('js', new Date());
+                       
+                       gtag('config', 'G-0KRSJDY68Y');
+                       </script>"
+                     ),
                      ## css style ----
                      tags$style(HTML("
                         .shiny-output-error-validation {
