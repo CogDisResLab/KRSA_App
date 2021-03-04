@@ -15,13 +15,13 @@ More info on the PamStation12 platform can be found here:
 
 ## Access
 
-KRSA preprint is available here:
-[Paper](%22https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1%22)
-
-The web application is freely accessible here: [Link](%22%22)
+The web application is freely accessible here:
+[Link](%22https://kalganem.shinyapps.io/KRSA/%22%22)
 
 KRSA R package repo: [KRSA
-Packgae](%22https://github.com/kalganem/KRSA%22)
+Packgae](%22https://github.com/kalganem/KRSA%22) KRSA preprint is
+available here:
+[Paper](%22https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1%22)
 
 ## Workflow
 
@@ -144,6 +144,6 @@ provided to allow for more control over the resultant graph.
 
 # Contact
 
-For technical issues, please start a new issue on this repo. For
+For technical issues, please start a new issue in this repo. For
 biological interpretation questions please email:
 <khaled.alganem@rockets.utoledo.edu>

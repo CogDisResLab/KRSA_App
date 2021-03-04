@@ -16,11 +16,10 @@ More info on the PamStation12 platform can be found here: [PamGene]("https://pam
 
 ## Access
 
-KRSA preprint is available here: [Paper]("https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1")
-
-The web application is freely accessible here: [Link]("")
+The web application is freely accessible here: [Link]("https://kalganem.shinyapps.io/KRSA/"")
 
 KRSA R package repo: [KRSA Packgae]("https://github.com/kalganem/KRSA")
+KRSA preprint is available here: [Paper]("https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1")
 
 
 
@@ -97,5 +96,5 @@ A network diagram connecting h kinases to predicted interacting proteins or kina
 
 # Contact
 
-For technical issues, please start a new issue on this repo.
+For technical issues, please start a new issue in this repo.
 For biological interpretation questions please email: khaled.alganem@rockets.utoledo.edu
