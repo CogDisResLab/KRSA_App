@@ -2,26 +2,25 @@
 
 Kinome Random Sampling Analyzer, or KRSA, is an R Shiny application that
 automates many of the steps required to analyze
-[PamChip](%22https://pamgene.com/technology/%22) datasets, including
-peptide filtering, random sampling, heatmap generation, and kinase
-network generation. This new software makes analyzing kinome array
-datasets accessible and eliminates much of the human workload that the
-previous method required. More importantly, KRSA represents the results
-in a bigger biological context by visualizing altered kinome signaling
+[PamChip](https://pamgene.com/technology/) datasets, including peptide
+filtering, random sampling, heatmap generation, and kinase network
+generation. This new software makes analyzing kinome array datasets
+accessible and eliminates much of the human workload that the previous
+method required. More importantly, KRSA represents the results in a
+bigger biological context by visualizing altered kinome signaling
 networks instead of individual kinases.
 
 More info on the PamStation12 platform can be found here:
-[PamGene](%22https://pamgene.com/%22)
+[PamGene](https://pamgene.com/)
 
 ## Access
 
 The web application is freely accessible here:
-[Link](%22https://kalganem.shinyapps.io/KRSA/%22%22)
+[Link](https://kalganem.shinyapps.io/KRSA/)
 
-KRSA R package repo: [KRSA
-Packgae](%22https://github.com/kalganem/KRSA%22) KRSA preprint is
-available here:
-[Paper](%22https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1%22)
+KRSA R package repo: [KRSA Packgae](https://github.com/kalganem/KRSA)
+KRSA preprint is available here:
+[Paper](https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1)
 
 ## Workflow
 
@@ -33,7 +32,7 @@ The user-supplied kinase-peptide association file and the raw kinome
 array data file are selected as input. The kinase-peptide associations
 should be based on the known/predicted interactions found in databases
 like GPS 3.0 and Kinexus Phosphonet. Expected inputs should be formatted
-as shown in the example files: data/datasets/DLPFC_MvsF_STK.txt and
+as shown in the example files: data/datasets/DLPFC\_MvsF\_STK.txt and
 data/sup/FinalMappingSTK.txt. Descriptions of pre-processing
 requirements, software use, and downstream validation techniques can
 also be found at the associated project GitHub.
@@ -56,9 +55,9 @@ chips.
 
 #### QC steps:
 
-Including minimum exposure intensity \> 2 at the last exposure time in
+Including minimum exposure intensity &gt; 2 at the last exposure time in
 the cycle (200 ms) and linearity of the post-wash curve as determined by
-linear regression (R2 \> 0.9), are provided to reduce the total number
+linear regression (R2 &gt; 0.9), are provided to reduce the total number
 of peptides evaluated to those meeting the quality control standards
 desired by the user, with these peptides denoted as s.
 
@@ -95,8 +94,8 @@ on the randomly sampled peptides and the corresponding confidence
 interval. The number of times a kinase is mapped to h (the
 differentially phosphorylated peptides) is also determined, and
 comparison of this kinase count to the mean kinase count from sampling
-allows us to determine differential kinase activity through a Z-score \>
-2 (alpha-level = 0.025).
+allows us to determine differential kinase activity through a Z-score
+&gt; 2 (alpha-level = 0.025).
 
 Results of the above calculations are provided in tabular form (Step4:
 Results), sorted in decreasing order by Z-score. Kinases appearing at

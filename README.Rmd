@@ -3,23 +3,23 @@ title: "Intro"
 author: "Khaled Alganem"
 output:
   md_document:
-    variant: markdown_github
+    variant: gfm
 ---
 
 
 ## KRSA
 
-Kinome Random Sampling Analyzer, or KRSA, is an R Shiny application that automates many of the steps required to analyze [PamChip]("https://pamgene.com/technology/") datasets, including peptide filtering, random sampling, heatmap generation, and kinase network generation. This new software makes analyzing kinome array datasets accessible and eliminates much of the human workload that the previous method required. More importantly, KRSA represents the results in a bigger biological context by visualizing altered kinome signaling networks instead of individual kinases.
+Kinome Random Sampling Analyzer, or KRSA, is an R Shiny application that automates many of the steps required to analyze [PamChip](https://pamgene.com/technology/) datasets, including peptide filtering, random sampling, heatmap generation, and kinase network generation. This new software makes analyzing kinome array datasets accessible and eliminates much of the human workload that the previous method required. More importantly, KRSA represents the results in a bigger biological context by visualizing altered kinome signaling networks instead of individual kinases.
 
-More info on the PamStation12 platform can be found here: [PamGene]("https://pamgene.com/")
+More info on the PamStation12 platform can be found here: [PamGene](https://pamgene.com/)
 
 
 ## Access
 
-The web application is freely accessible here: [Link]("https://kalganem.shinyapps.io/KRSA/"")
+The web application is freely accessible here: [Link](https://kalganem.shinyapps.io/KRSA/)
 
-KRSA R package repo: [KRSA Packgae]("https://github.com/kalganem/KRSA")
-KRSA preprint is available here: [Paper]("https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1")
+KRSA R package repo: [KRSA Packgae](https://github.com/kalganem/KRSA)
+KRSA preprint is available here: [Paper](https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1)
 
 
 
