@@ -8,7 +8,7 @@ output:
 
 ## KRSA
 
-Kinome Random Sampling Analyzer, or KRSA, is an R package and a Shiny application that automates many of the steps required to analyze [PamChip](https://pamgene.com/technology/) datasets, including peptide filtering, random sampling, heatmap generation, and kinase network generation. This new software makes analyzing kinome array datasets accessible and eliminates much of the human workload that the previous method required. More importantly, KRSA represents the results in a bigger biological context by visualizing altered kinome signaling networks instead of individual kinases.
+Kinome Random Sampling Analyzer, or KRSA, is an R package and a R Shiny application that automates many of the steps required to analyze [PamChip](https://pamgene.com/technology/) datasets, including peptide filtering, random sampling, heatmap generation, and kinase network generation. This new software makes analyzing kinome array datasets accessible and eliminates much of the human workload that the previous method required. More importantly, KRSA represents the results in a bigger biological context by visualizing altered kinome signaling networks instead of individual kinases.
 
 Learn more about the KRSA R package: [<img src="www/images/krsa_logo_v3.png" width="40" height="40"/>](https://github.com/kalganem/KRSA)
 
@@ -34,9 +34,9 @@ KRSA preprint is available here: [Paper](https://www.biorxiv.org/content/10.1101
 
 ## Random Sampling Approach
 
-<img src="www/images/rand_sampling_DMPK.gif" width="180" height="157"/>
+<img src="www/images/rand_sampling_DMPK.gif" width="170" height="157"/>
 
-<img src="www/images/rand_explain.png" width="500"/>
+<img src="www/images/rand_explain.png" width="450" height="151"/>
 
 ------------------------------------------------------------------------
 
