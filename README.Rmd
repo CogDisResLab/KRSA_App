@@ -6,95 +6,142 @@ output:
     variant: markdown_github
 ---
 
-
 ## KRSA
 
-Kinome Random Sampling Analyzer, or KRSA, is an R Shiny application that automates many of the steps required to analyze [PamChip](https://pamgene.com/technology/) datasets, including peptide filtering, random sampling, heatmap generation, and kinase network generation. This new software makes analyzing kinome array datasets accessible and eliminates much of the human workload that the previous method required. More importantly, KRSA represents the results in a bigger biological context by visualizing altered kinome signaling networks instead of individual kinases.
+Kinome Random Sampling Analyzer, or KRSA, is an R package and a Shiny application that automates many of the steps required to analyze [PamChip](https://pamgene.com/technology/) datasets, including peptide filtering, random sampling, heatmap generation, and kinase network generation. This new software makes analyzing kinome array datasets accessible and eliminates much of the human workload that the previous method required. More importantly, KRSA represents the results in a bigger biological context by visualizing altered kinome signaling networks instead of individual kinases.
+
+Learn more about the KRSA R package: [<img src="www/images/krsa_logo_v3.png" width="40" height="40"/>](https://github.com/kalganem/KRSA)
 
 More info on the PamStation12 platform can be found here: [PamGene](https://pamgene.com/)
 
+------------------------------------------------------------------------
 
 ## Access
 
 The web application is freely accessible here: [Link](https://kalganem.shinyapps.io/KRSA/)
 
-KRSA R package repo: [KRSA Packgae](https://github.com/kalganem/KRSA)
+KRSA R package repo: [KRSA Package](https://github.com/kalganem/KRSA)
+
 KRSA preprint is available here: [Paper](https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1)
 
-
+------------------------------------------------------------------------
 
 ## Workflow
 
 ![KRSA Workflow](figures/workflow.jpg)
 
+------------------------------------------------------------------------
+
+## Random Sampling Approach
+
+<img src="www/images/rand_sampling_DMPK.gif" width="180" height="157"/>
+
+<img src="www/images/rand_explain.png" width="500"/>
+
+------------------------------------------------------------------------
+
 ## Input Files
 
-The user-supplied kinase-peptide association file and the raw kinome array data file are selected as input. The kinase-peptide associations should be based on the known/predicted interactions found in databases like GPS 3.0 and Kinexus Phosphonet. Expected inputs should be formatted as shown in the example files: data/datasets/DLPFC_MvsF_STK.txt and data/sup/FinalMappingSTK.txt. Descriptions of pre-processing requirements, software use, and downstream validation techniques can also be found at the associated project GitHub.
+The user-supplied kinase-peptide association file and the raw kinome array data file are selected as input. The kinase-peptide associations should be based on the known/predicted interactions found in databases like GPS 3.0 and Kinexus Phosphonet. Expected inputs should be formatted as shown in the example files: data/datasets/DLPFC_MvsF_STK.txt and data/sup/FinalMappingSTK.txt.
 
-
-
+------------------------------------------------------------------------
 
 ## Interface and Use
 
-We wanted to have a user friendly interface so we designed KRSA to be as a dashboard where each tab represents a step of the analysis 
+We wanted to have a user friendly interface, so we've designed the KRSA app to have a navbar at the top that takes you to different steps of the analysis. As you start the app, there will be only two tabs (Home and Step1: input). As you go through the app more tabs will appear.
 
+*Most inputs and options have an info icon <img src="www/images/info-icon.jpg" width="15"/>, when clicked more information will be displayed*
 
 ## Tabs
 
-### Step1: Options
+### Home
 
-This tab lets you preview your uploaded data and select the groups classifications for the input samples can be determined through drop-down menus which allow for clustering of samples within and across chips. 
+This is the home page of the app. It has information about KRSA and the app workflow. It also has a subset of publications that have used KRSA. When you click on a publication, the abstract of the paper will show up and a link to PubMed.
 
+### Step1: Input
 
+This is the first step of using the KRSA app. This tab lets you either upload a [BioNavigator](https://pamgene.com/technology/) Crosstab view file or use the built-in example dataset. You also need to either upload a kinase-substrate mapping file or use the built-in curated KRSA mapping file.
 
-### Step2: Stringency
+![](www/images/AppInfo/step1_2.png)
 
+1.  Box to upload the BioNavigator Crosstab view file or use the built-in example dataset
 
-#### QC steps:
+2.  upload a kinase-substrate mapping file or use the built-in curated KRSA mapping file
 
-Including minimum exposure intensity > 2 at the last exposure time in the cycle (200 ms) and linearity of the post-wash curve as determined by linear regression (R2 > 0.9), are provided to reduce the total number of peptides evaluated to those meeting the quality control standards desired by the user, with these peptides denoted as s. 
+3.  After the input file is uploaded successfully (or the built-in example dataset is used), a preview of the newly formatted table will be shown here.
 
+4.  After the kinase-substrate mapping file is uploaded successfully (or the built-in KRSA curated file is used), a preview of the kinase-substrate table will be shown here.
 
-#### Fold Change Threshold:
+5.  After all files are uploaded, you can click this button to proceed to the next step.
 
-Fold change thresholds are selected to identify differentially phosphorylated peptides (h, or “hits”) between selected groups. KRSA has a default cutoff of ± 35% as a fold change threshold, though modification should be made in cases where the bar for biological significance is substantially higher or lower. Line plots displaying the phosphorylation intensity in the post-wash phase for each sample are generated to allow for visual inspection of the selected peptides before proceeding to the next step to ensure linearity and sufficient magnitude of phosphorylation for each differentially phosphorylated peptide.
+### Step2: Design Options:
 
-![KRSA Curves](figures/curves.gif)
+This tab is used to control the selection of samples and parameters to run KRSA.
 
+![](www/images/AppInfo/step2_1.png)
 
+1.  Here is the option to select the column the will define the different grouping in the sample set (typical columns are *SampleName* or *Comment 1*)
 
-### Step3: Iteration
+2.  Options to select the Control and Case groups
 
-Random Sampling: KRSA performs random sampling of the available peptides on the kinase array to get distributions for associated kinase-peptide interactions. The number of iterations of sampling (i), between 0-5000, is selected by the user, where higher i values increases the stability of the kinase predictions while also increasing the run time of the software. For each iteration i, the same number of peptides as h are randomly selected without replacement from s available peptides (these randomly selected peptides are denoted as h’).
+3.  Here is the option to select the column (or columns) the will generate unique IDs for each sample. (This will create a new column in your data by pasting the values found the columns that are selected.
 
+![](www/images/AppInfo/step2_2.png)
 
+1.  **QC Options:** Here you select the QC options that will be used to filter out peptides.
 
-### Step4: Results and Step5: Histogram
+2.  **Fold Change Options:** a slider to set the log2 fold change cutoff that will be used to extract differentially phosphorylated peptides.
 
-When the sampling is complete, a distribution for each kinase is determined from the mean number of times each kinase was predicted based on the randomly sampled peptides and the corresponding confidence interval. The number of times a kinase is mapped to h (the differentially phosphorylated peptides) is also determined, and comparison of this kinase count to the mean kinase count from sampling allows us to determine differential kinase activity through a Z-score > 2 (alpha-level = 0.025).
+3.  **Sampling Options:** Here you set the number of iterations used in the random sampling analysis. and, optionally, you can select a seed number that can be used later to reproduce the results.
 
-Results of the above calculations are provided in tabular form (Step4: Results), sorted in decreasing order by Z-score. Kinases appearing at the top of this table are those that are most likely to have significant alterations in activity between the control and the experimental groups. This table can be directly saved within the KRSA software for inclusion in publications.
+4.  After all the selections requirement are satisfied, this button will run KRSA using the selected parameters.
 
-Histograms (Step5) displaying the distribution of mappings for each kinase after random sampling are provided, with the h mapping (vertical line), h’ averages (bars), and h’ confidence interval (gray translucent region) overlaid. Histograms of kinases with h averages outside of the confidence interval in either direction are considered significantly altered and match the kinases shown in the tabular output.
+#### Results Overview:
 
-![KRSA Histograms](figures/hits.jpg)
+This tab will show a summary of the parameters that were selected and contains sub-panels that will show different figures.
 
+![](www/images/AppInfo/step3_1.png)
 
+1.  **Summary Box:** A summary of the parameters that were selected based on the previous step
 
-### Step6: Heatmap
-Heatmap of Differential Phosphorylation: A user-customizable heatmap, generated using the R package ‘pheatmap’, visualizing the fold-change differences for each peptide is provided and sorted in descending order. This heatmap can be saved as a PDF or image file directly within the KRSA software.
+2.  **Peptide Selection:** This will show the number of peptides after each filtration step (QC steps, and LFC). When hovered over the boxes, more information will be displayed
 
-![KRSA Heatmap](figures/heatmap.jpg)
+3.  **LFC Table:** This will show the log2 fold change table. (a download button is available at the bottom of the table)
 
+4.  **Model Table:** This will show the linear fit model output for each peptide and sample. (a download button is available at the bottom of the table)
 
+![](www/images/AppInfo/step3_2.png)
 
-## Step7: Network
-A network diagram connecting h kinases to predicted interacting proteins or kinases is generated using the Search Tool for Retrieval of Interacting Genes/Proteins (STRING) database data and graphed with the ‘igraph’ package in R (Szklarczyk et al., 2017). The generated network represents the direct interactions between protein kinases identified from KRSA, as well as additional kinases indirectly connected to the original seed kinases. STRING was used for growing and connecting the kinase network by selectively adding interacting kinases with the highest confidence interaction score. Because of the highly interactive and repetitive structure of kinase activity, we weighted the nodes of the network based on the number of interactions found for each kinase in the network. Confidence thresholds and connection type options are provided to allow for more control over the resultant graph.
+1.  **Results Tabs:**
 
-![KRSA Network](figures/networks.jpg)
+    -   **Results Overview:** Described above
 
+    -   **Results Kinase:**
+
+        -   **Kinase Table:** This will show final kinase table with Z scores for each kinase that was calculated using the random sampling approach.
+
+        -   **Kinase Histogram:** a figure based on the random sampling analysis for each kinase
+
+        -   **Reverse KRSA:** a figure that will plot the LFCs for all peptides that are mapped to the top kinase hits.
+
+    -   **Results Network:** This will show the kinase network model and options
+
+2.  **Subset Panels:** These show different plots to represent the data
+
+    -   **Summary:** Described above
+
+    -   **Heatmap:** This will a heatmap that represents the signal intensity of peptides and the selected samples. It has options for clustering and normalization.
+
+    -   **Boxplot:** This will show a boxplot that represents the signal intensity of peptides and the selected samples as boxplot to determine global signals.
+
+    -   **Curves Plot:** The linear fit model is represented here for each peptides and colored by groups
+
+    -   **Waterfall:** this figure represent the log2 fold change values for peptides that passed the QC filtration steps
+
+------------------------------------------------------------------------
 
 # Contact
 
-For technical issues, please start a new issue in this repo.
-For biological interpretation questions please email: khaled.alganem@rockets.utoledo.edu
+For technical issues, please start a new issue on this repo.
+
+For biological interpretation questions, please email: [khaled.alganem\@rockets.utoledo.edu](mailto:khaled.alganem@rockets.utoledo.edu)
