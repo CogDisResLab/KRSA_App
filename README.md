@@ -1,4 +1,4 @@
-<br /> \#\# KRSA
+## KRSA
 
 Kinome Random Sampling Analyzer, or KRSA, is an R package and a R Shiny
 application that automates many of the steps required to analyze
@@ -15,7 +15,8 @@ Learn more about the KRSA R package:
 
 More info on the PamStation12 platform can be found here:
 [PamGene](https://pamgene.com/) <br /> ————————————————————————
-<br /><br /><br /> \#\# Access
+
+## Access
 
 The web application is freely accessible here:
 [Link](https://kalganem.shinyapps.io/KRSA/)
@@ -29,8 +30,10 @@ KRSA preprint is available here:
 
 ## Workflow
 
-<br /> ![KRSA Workflow](figures/workflow.jpg) <br />
-———————————————————————— <br /> \#\# Random Sampling Approach
+<br /> ![KRSA Workflow](figures/workflow.jpg) <br /> <br />
+————————————————————————
+
+## Random Sampling Approach
 
 ###### Running Random Sampling
 
@@ -38,7 +41,7 @@ KRSA preprint is available here:
 <img src="www/images/rand_sampling_DMPK.gif"/>
 </p>
 
-<br />
+<br /> <br />
 
 ###### Calculating Mean, Standard Deviations, and Z Scores
 
@@ -48,15 +51,16 @@ KRSA preprint is available here:
 
 ## <br /><br />
 
-<br /><br /> \#\# Input Files
+## Input Files
 
 The user-supplied kinase-peptide association file and the raw kinome
 array data file are selected as input. The kinase-peptide associations
 should be based on the known/predicted interactions found in databases
 like GPS 3.0 and Kinexus Phosphonet. Expected inputs should be formatted
 as shown in the example files: data/datasets/DLPFC_MvsF_STK.txt and
-data/sup/FinalMappingSTK.txt. <br /> ———————————————————————— <br />
-\#\# Interface and Use
+data/sup/FinalMappingSTK.txt. <br /> <br /> ————————————————————————
+
+## Interface and Use
 
 We wanted to have a user friendly interface, so we’ve designed the KRSA
 app to have a navbar at the top that takes you to different steps of the
@@ -197,8 +201,10 @@ contains sub-panels that will show different figures.
         each peptides and colored by groups
 
     -   **Waterfall:** this figure represent the log2 fold change values
-        for peptides that passed the QC filtration steps <br />
-        ———————————————————————— <br /> \# Contact
+        for peptides that passed the QC filtration steps <br /><br />
+        ————————————————————————
+
+# Contact
 
 For technical issues, please start a new issue on this repo.
 

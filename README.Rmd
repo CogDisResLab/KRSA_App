@@ -5,7 +5,7 @@ output:
   md_document:
     variant: markdown_github
 ---
-<br />
+
 ## KRSA
 
 Kinome Random Sampling Analyzer, or KRSA, is an R package and a R Shiny application that automates many of the steps required to analyze [PamChip](https://pamgene.com/technology/) datasets, including peptide filtering, random sampling, heatmap generation, and kinase network generation. This new software makes analyzing kinome array datasets accessible and eliminates much of the human workload that the previous method required. More importantly, KRSA represents the results in a bigger biological context by visualizing altered kinome signaling networks instead of individual kinases.
@@ -15,7 +15,7 @@ Learn more about the KRSA R package: [<img src="www/images/krsa_logo_v3.png" wid
 More info on the PamStation12 platform can be found here: [PamGene](https://pamgene.com/)
 <br />
 ------------------------------------------------------------------------
-<br /><br /><br />
+
 ## Access
 
 The web application is freely accessible here: [Link](https://kalganem.shinyapps.io/KRSA/)
@@ -30,8 +30,9 @@ KRSA preprint is available here: [Paper](https://www.biorxiv.org/content/10.1101
 <br />
 ![KRSA Workflow](figures/workflow.jpg)
 <br />
-------------------------------------------------------------------------
 <br />
+------------------------------------------------------------------------
+
 ## Random Sampling Approach
 
 ###### Running Random Sampling
@@ -41,6 +42,7 @@ KRSA preprint is available here: [Paper](https://www.biorxiv.org/content/10.1101
 </p>
 
 <br />
+<br />
 
 ###### Calculating Mean, Standard Deviations, and Z Scores
 
@@ -49,13 +51,14 @@ KRSA preprint is available here: [Paper](https://www.biorxiv.org/content/10.1101
 </p>
 <br /><br />
 ------------------------------------------------------------------------
-<br /><br />
+
 ## Input Files
 
 The user-supplied kinase-peptide association file and the raw kinome array data file are selected as input. The kinase-peptide associations should be based on the known/predicted interactions found in databases like GPS 3.0 and Kinexus Phosphonet. Expected inputs should be formatted as shown in the example files: data/datasets/DLPFC_MvsF_STK.txt and data/sup/FinalMappingSTK.txt.
 <br />
-------------------------------------------------------------------------
 <br />
+------------------------------------------------------------------------
+
 ## Interface and Use
 
 We wanted to have a user friendly interface, so we've designed the KRSA app to have a navbar at the top that takes you to different steps of the analysis. As you start the app, there will be only two tabs (Home and Step1: input). As you go through the app more tabs will appear.
@@ -154,9 +157,9 @@ This tab will show a summary of the parameters that were selected and contains s
     -   **Curves Plot:** The linear fit model is represented here for each peptides and colored by groups
 
     -   **Waterfall:** this figure represent the log2 fold change values for peptides that passed the QC filtration steps
-<br />
+<br /><br />
 ------------------------------------------------------------------------
-<br />
+
 # Contact
 
 For technical issues, please start a new issue on this repo.
