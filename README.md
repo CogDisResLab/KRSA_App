@@ -68,7 +68,9 @@ analysis. As you start the app, there will be only two tabs (Home and
 Step1: input). As you go through the app more tabs will appear. <br />
 *Most inputs and options have an info icon
 <img src="www/images/info-icon.jpg" width="15"/>, when clicked more
-information will be displayed* <br /> \#\# Tabs
+information will be displayed* <br />
+
+## Tabs
 
 ### Home
 
