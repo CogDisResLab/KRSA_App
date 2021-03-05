@@ -38,9 +38,14 @@ KRSA preprint is available here:
 
 ## Random Sampling Approach
 
+###### Running Random Sampling
+
 <p align="center">
-<img src="www/images/rand_sampling_DMPK.gif" width="180" height="300"/>
+<img src="www/images/rand_sampling_DMPK.gif"/>
 </p>
+
+###### Calculating Mean, Standard Deviations, and Z Scores
+
 <p align="center">
 <img src="www/images/rand_explain_new.png"/>
 </p>
