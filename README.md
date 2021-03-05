@@ -38,9 +38,7 @@ KRSA preprint is available here:
 
 ## Random Sampling Approach
 
-<img src="www/images/rand_sampling_DMPK.gif" width="170" height="157"/>
-
-<img src="www/images/rand_explain.png" width="450" height="151"/>
+<img src="www/images/rand_sampling_DMPK.gif" width="170" height="157"/><img src="www/images/rand_explain.png" width="450" height="151"/>
 
 ------------------------------------------------------------------------
 
