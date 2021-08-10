@@ -7,8 +7,22 @@ library(igraph)
 
 source("funcs/krsa_violin_plot_2.R")
 source("funcs/krsa_ball_model_2.R")
+source("ui-guide.R")
 
 server <- function(input, output, session) {
+  
+  
+  observeEvent(input$help1, {
+  guide1$init()$start()
+  })
+  
+  observeEvent(input$help2, {
+    guide2$init()$start()
+  })
+  
+  observeEvent(input$help3, {
+    guide3$init()$start()
+  })
   
   session$onSessionEnded(stopApp)
   
@@ -132,7 +146,7 @@ server <- function(input, output, session) {
       toggleState(id = "use_seed_num", condition = input$use_seed == T)
     })
 
-    showTab(inputId = "tabs", target = "Step2: Design Options")
+    showTab(session = session, inputId = "tabs", target = "Step2: Design Options")
     updateNavbarPage(session, "tabs", selected = "Step2: Design Options")
  
   })
@@ -260,6 +274,8 @@ server <- function(input, output, session) {
                                            c(input$case_group, input$ctl_group),
                                            data_file$pep_nonLinear, byChip = F)
     
+    
+    
     # TODO byChip option
     # if(input$by_chip) {
     #   data_file$pep_sig <- krsa_get_diff_byChip(data_file$lfc_table, LFC, lfc_thr = input$lfc_thr)
@@ -272,6 +288,7 @@ server <- function(input, output, session) {
     data_file$lfc_table %>%
       filter(LFC >= input$lfc_thr | LFC <= input$lfc_thr*-1) %>%
       pull(Peptide) -> data_file$pep_sig
+    
     
     
     output$init_peps <- renderValueBox({
@@ -413,5 +430,7 @@ server <- function(input, output, session) {
 
     })
   })
+  
+  
   
 }

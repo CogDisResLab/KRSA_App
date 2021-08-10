@@ -6,12 +6,14 @@ library(shinydashboard)
 library(shinycssloaders)
 library(magrittr)
 library(bsplus)
+library(cicerone)
 
 ## Shiny UI ----
 shinyUI(navbarPage(title = "KRSA",
                    header = tagList(
                      useShinydashboard(),
                      useShinyjs(),
+                     use_cicerone(),
                      use_bs_popover(),
                      use_bs_tooltip(),
                      # GA Tag ------
@@ -72,9 +74,13 @@ shinyUI(navbarPage(title = "KRSA",
                    
                    # Step1: Input Panel -----
                    tabPanel("Step1: Input",
-
+                            
+                            fluidRow(column(offset = 11, width = 1, align="center",
+                                            actionButton("help1", icon = icon("question"), label = "Help"),
+                                            hr()
+                                            )),
                             fluidRow(
-                              shinydashboard::box(title = "Signal",width = 6, status = "primary",solidHeader=TRUE,
+                              shinydashboard::box(id = "box1_sig",title = "Signal",width = 6, status = "primary",solidHeader=TRUE,
                                      fileInput("input_file", label = "Upload the Median_SigmBg crosstab file: ",
                                                accept = c("txt")
                                      ) %>% 
@@ -89,6 +95,7 @@ shinyUI(navbarPage(title = "KRSA",
                                      
                                      ,
                                      actionButton("load_ex_data", "Use Example Dataset")
+                                     
                               ),
                               # box(title = "Optional: Signal Saturation",width = 4,collapsible = T,collapsed = T,
                               #        fileInput("input_file2", label = "Optional: Upload the signal saturation crosstab file: ",
@@ -96,7 +103,7 @@ shinyUI(navbarPage(title = "KRSA",
                               #        ),
                               #        actionButton("load_ex_data2", "Use Example Dataset")
                               # ),
-                              shinydashboard::box(title = "Kinase Mapping", width = 6,status = "primary",solidHeader=TRUE,
+                              shinydashboard::box(id = "box2_map",title = "Kinase Mapping", width = 6,status = "primary",solidHeader=TRUE,
                                      fileInput("map_file", label = "Upload a kinase-substrate association file: ",
                                                accept = c("txt")
                                      ) %>% 
@@ -114,10 +121,10 @@ shinyUI(navbarPage(title = "KRSA",
                             ),
                             
                             fluidRow(
-                              shinydashboard::box(title = "Preview Signal Table",width = 6, status = "primary",solidHeader=TRUE,
+                              shinydashboard::box(id = "sig_prev_box", title = "Preview Signal Table",width = 6, status = "primary",solidHeader=TRUE,
                                   tableOutput("sig_tbl_preview")
                               ),
-                              shinydashboard::box(title = "Preview Kinase Mapping", width = 6,status = "primary",solidHeader=TRUE,
+                              shinydashboard::box(id = "map_prev_box", title = "Preview Kinase Mapping", width = 6,status = "primary",solidHeader=TRUE,
                                   tableOutput("map_tbl_preview")
                               )
                             ),
@@ -133,10 +140,16 @@ shinyUI(navbarPage(title = "KRSA",
                    ),
                    
                    # Step2: Design Panel -----
-                   tabPanel("Step2: Design Options",
-                            
+                   tabPanel("Step2: Design Options", id = "design_tab",
+                            fluidRow(column(offset = 11, width = 1, align="center",
+                                            actionButton("help2", icon = icon("question"), label = "Help"),
+                                            hr()
+                            )),
                             fluidRow(
-                              shinydashboard::box(title = "Design",width = 6, status = "primary",solidHeader=TRUE,
+                              shinydashboard::box(title = "Design", id = "design_box",width = 6, status = "primary",solidHeader=TRUE,
+                                                  
+                                                  div(id = "group_col_div",
+                                                  
                                                   selectInput("group_col", label = "Select Column to define groups: ",
                                                             choices = list(""), selected = NULL
                                                   ) %>% 
@@ -147,14 +160,18 @@ shinyUI(navbarPage(title = "KRSA",
                                                           placement = "left", trigger = "focus"
                                                         )
                                                     )
-                                                  
-                                                  ,
+                                                  ),
+                                                  div(id = "ctl_group_div",
                                                   selectInput("ctl_group", label = "Select the Control Group:",
                                                               choices = list("")
+                                                  )
                                                   ),
+                                                  div(id = "case_group_div",
                                                   selectInput("case_group", label = "Select the Case Group:",
                                                               choices = list("")
+                                                  )
                                                   ),
+                                                  div(id = "sampleName_col_div",
                                                   selectInput("sampleName_col", label = "Select Columns to define unique samples: ",
                                                               choices = list(""), selected = NULL, multiple = T
                                                   ) %>% 
@@ -165,12 +182,13 @@ shinyUI(navbarPage(title = "KRSA",
                                                           placement = "left", trigger = "focus"
                                                         )
                                                     )
+                                                  ),
                                                   
-                                                  ,
                                                   
                               ),
                               
-                              shinydashboard::box(title = "QC Options", width = 6,status = "primary",solidHeader=TRUE,
+                              shinydashboard::box(id = "qc_box", title = "QC Options", width = 6,status = "primary",solidHeader=TRUE,
+                                                  div(id = "max_qc_div",
                                                   sliderInput("max_sig_qc", "Max Exposure Signal", min = 1, max = 100, value = 5, step = 1) %>% 
                                                     shinyInput_label_embed(
                                                       htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
@@ -179,22 +197,23 @@ shinyUI(navbarPage(title = "KRSA",
                                                           placement = "left", trigger = "focus"
                                                         )
                                                     )
-                                                   
-                                                  ,
+                                                  ),
+                                                  div(id = "r2_qc_div",
                                                   sliderInput("r2_qc", "Min R2", min = 0, max = 0.99, value = 0.90, step = 0.05) %>% 
                                                     shinyInput_label_embed(
                                                       htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
                                                         bs_embed_popover(
-                                                          title = "Min R2", content = "Used to filter out peptides that have nonlinear fit. This will the R2 of the linear model and filter peptides that have R2 lower than this value", 
+                                                          title = "Min R2", content = "Used to filter out peptides that have nonlinear fit. This will check the R2 of the linear model and filter peptides that have R2 lower than this value", 
                                                           placement = "left", trigger = "focus"
                                                         )
                                                     )
+                                                  )
                               )
 
                             ),
                             
                             fluidRow(
-                              shinydashboard::box(title = "Fold Change Options",width = 6, status = "primary",solidHeader=TRUE,
+                              shinydashboard::box(id = "lfc_box",title = "Fold Change Options",width = 6, status = "primary",solidHeader=TRUE,
                                                   sliderInput("lfc_thr", "Log2 Fold Change Cutoff", min = 0, max = 5, value = 0.2, step = 0.05) %>% 
                                                     shinyInput_label_embed(
                                                       htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
@@ -214,7 +233,8 @@ shinyUI(navbarPage(title = "KRSA",
                                                   #       )
                                                   #   )
                               ),
-                              shinydashboard::box(title = "Sampling Options", width = 6,status = "primary",solidHeader=TRUE,
+                              shinydashboard::box(id = "sampling_box",title = "Sampling Options", width = 6,status = "primary",solidHeader=TRUE,
+                                                  div(id = "itr_div",
                                                   sliderInput("itr_num", "Number of Iterations", min = 100, max = 2000, value = 500, step = 100) %>% 
                                                     shinyInput_label_embed(
                                                       htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
@@ -224,7 +244,8 @@ shinyUI(navbarPage(title = "KRSA",
                                                         )
                                                     )
                                                   
-                                                  ,
+                                                  ),
+                                                  div(id = "seed_div",
                                                   switchInput("use_seed", "Use Seed?", value = FALSE, onLabel = "Yes", offLabel = "No") %>% 
                                                     shinyInput_label_embed(
                                                       htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
@@ -233,7 +254,8 @@ shinyUI(navbarPage(title = "KRSA",
                                                           placement = "left", trigger = "focus"
                                                         )
                                                     )
-                                                    ,
+                                                    ),
+                                                  div(id = "seed_num_div",
                                                   numericInput("use_seed_num", "Input Seed Number: ", value = 123) %>% 
                                                     shinyInput_label_embed(
                                                       htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
@@ -242,6 +264,7 @@ shinyUI(navbarPage(title = "KRSA",
                                                           placement = "left", trigger = "focus"
                                                         )
                                                     )
+                              )
                               )
                             ),
                             
@@ -258,15 +281,22 @@ shinyUI(navbarPage(title = "KRSA",
                    
                    # Step3: Results Overview Panel -----
                    tabPanel("Results: Overview", 
-                            
-                            tabsetPanel(#"output_panels",
+                            # fluidRow(column(offset = 11, width = 1, align="center",
+                            #                 actionButton("help3", icon = icon("question"), label = "Help"),
+                            #                 hr()
+                            # )),
+                            tabsetPanel(id = "res_tabs",
                               tabPanel("Summary", 
                                        fluidRow(
-                                         infoBoxOutput("summary_options")
+                                         column(width = 11,infoBoxOutput("summary_options")),
+                                         column(width = 1, align="center",
+                                                actionButton("help3", icon = icon("question"), label = "Help"),
+                                                hr()
+                                         )
                                        ),
                                        
                                        fluidRow(
-                                        shinydashboard::box(title = "Peptides Selection",width = 12, status = "primary",solidHeader=TRUE,
+                                        shinydashboard::box(id = "peps_box",title = "Peptides Selection",width = 12, status = "primary",solidHeader=TRUE,
                                         valueBoxOutput("init_peps", width = 3) %>% 
                                           bs_embed_tooltip(title = "Initial number of peptides in the input file"),
                                         valueBoxOutput("qc_maxSig_peps", width = 3) %>% 
@@ -278,11 +308,11 @@ shinyUI(navbarPage(title = "KRSA",
                                        )),
                                        
                                        fluidRow(
-                                         shinydashboard::box(title = "LFC Table",width = 6, status = "primary",solidHeader=TRUE,collapsible = T, collapsed = F,
+                                         shinydashboard::box(id = "lfc_tbl_box",title = "LFC Table",width = 6, status = "primary",solidHeader=TRUE,collapsible = T, collapsed = F,
                                                              dataTableOutput("lfc_table"),
                                                              downloadButton("lfc_table_download", label = "Save Table")
                                          ),
-                                         shinydashboard::box(title = "Model Table", width = 6,status = "primary",solidHeader=TRUE,collapsible = T, collapsed = F,
+                                         shinydashboard::box(id = "model_tbl_box",title = "Model Table", width = 6,status = "primary",solidHeader=TRUE,collapsible = T, collapsed = F,
                                                              dataTableOutput("model_table"),
                                                              downloadButton("model_table_download", label = "Save Table")
                                          )
@@ -292,17 +322,39 @@ shinyUI(navbarPage(title = "KRSA",
                                        ),
                               tabPanel("Heatmap", 
                                        fluidRow(
-                                         shinydashboard::box(title = "Options",width = 4, status = "primary",solidHeader=TRUE,
+                                         shinydashboard::box(id = "hm_options",title = "Options",width = 4, status = "primary",solidHeader=TRUE,
                                                              selectInput("heatmap_op1", "Data",
-                                                                         choices = c("Normal", "Normalized"), label = "Data"),
+                                                                         choices = c("Normal", "Normalized"), label = "Data") %>% 
+                                                               shinyInput_label_embed(
+                                                                           htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
+                                                                             bs_embed_popover(
+                                                                               title = "Data", content = "Here you can choose either the raw or normalized (by chip/barcode) data",
+                                                                               placement = "top", trigger = "focus"
+                                                                             )
+                                                                         ),
                                                              selectInput("heatmap_op2", "Clustering Method",
                                                                          choices = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median","centroid"),
                                                                          selected = "ward.D2"
-                                                             ),
+                                                             ) %>% 
+                                                               shinyInput_label_embed(
+                                                                 htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
+                                                                   bs_embed_popover(
+                                                                     title = "Clustering Method", content = "Here you can choose the unsupervised clustering method that will be passed to hclust function to generate the heatmap",
+                                                                     placement = "top", trigger = "focus"
+                                                                   )
+                                                               ),
                                                              selectInput("heatmap_op4", "Scale",
                                                                          choices = c("row", "column", "none"),
                                                                          selected = "row"
-                                                             ),
+                                                             ) %>% 
+                                                               shinyInput_label_embed(
+                                                                 htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
+                                                                   bs_embed_popover(
+                                                                     title = "Scale", content = "Here you can scale the values by row (peptide) or column (sample). 
+                                                                     This will convert the values to z scores and will be displayed on the heatmap",
+                                                                     placement = "top", trigger = "focus"
+                                                                   )
+                                                               ),
                                                              switchInput("heatmap_op3", "Cluster", onLabel = "Yes", offLabel = "No")
                                          ),
                                          shinydashboard::box(title = "Heatmap", width = 8,status = "primary",solidHeader=TRUE,
@@ -316,7 +368,14 @@ shinyUI(navbarPage(title = "KRSA",
                                        plotOutput("boxplot") %>% withSpinner(color="#0dc5c1")
                                        ),
                               tabPanel("Cuvres Plot", 
-                                       selectInput("crves_plot_opt1", "Peptide", choices = ""),
+                                       selectInput("crves_plot_opt1", "Peptide", choices = "") %>% 
+                                         shinyInput_label_embed(
+                                           htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
+                                             bs_embed_popover(
+                                               title = "Peptide", content = "Here you can select different peptides to plot",
+                                               placement = "right", trigger = "focus"
+                                             )
+                                         ),
                                        plotOutput("cuvres_plot", height = "600px") %>% withSpinner(color="#0dc5c1")
                                        ),
                               tabPanel("WaterFall", 
@@ -335,12 +394,26 @@ shinyUI(navbarPage(title = "KRSA",
                                        ),
                               
                               tabPanel("Histogram",
-                                       selectInput("histogram_opt1", "Kinase", choices = ""),
+                                       selectInput("histogram_opt1", "Kinase", choices = "") %>% 
+                                         shinyInput_label_embed(
+                                           htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
+                                             bs_embed_popover(
+                                               title = "Kinase", content = "Here you can choose different kinases to plot",
+                                               placement = "right", trigger = "focus"
+                                             )
+                                         ),
                                        plotOutput("histogram")
                                        ),
                               tabPanel("Reverse KRSA",
                                        
-                                       sliderInput("ReverseKRSA_opt1", label = "Z Score cuttof",min = 0.5, max = 5, step = 0.25, value = 2),
+                                       sliderInput("ReverseKRSA_opt1", label = "Z Score cuttof",min = 0.5, max = 5, step = 0.25, value = 2) %>% 
+                                         shinyInput_label_embed(
+                                           htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
+                                             bs_embed_popover(
+                                               title = "Z score Threshold", content = "Here you can control the Z score threshold. Higher values results in fewer kinases on the figure",
+                                               placement = "right", trigger = "focus"
+                                             )
+                                         ),
                                        plotOutput("ReverseKRSA")
                                        )
                             )
@@ -351,11 +424,47 @@ shinyUI(navbarPage(title = "KRSA",
                             
                             fluidRow(
                               shinydashboard::box(title = "Network Options" ,width = 4, status = "primary",solidHeader=TRUE,
-                                                  sliderInput("net_frq", label = "Freq", min=1, max=10, value=4, step=1), 
-                                                  sliderInput("network_opt1", label = "Z score cutoff", min=0.5, max=10, value=2, step=0.25), 
-                                                  sliderInput("nodeSize", label = "Node Size", min=1, max=10, value=3, step=1),
-                                                  sliderInput("nodeTextSize", label = "Node Text Size", min=1, max=10, value=6, step=1),
-                                                  selectInput("layout", "Choose layout:", choices=c("Circle", "Fruchterman-Reingold", "Kamada Kawai", "LGL")),
+                                                  sliderInput("net_frq", label = "Frequency", min=1, max=10, value=4, step=1)  %>% 
+                                                    shinyInput_label_embed(
+                                                      htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
+                                                        bs_embed_popover(
+                                                          title = "Frequency", content = "Here you can choose frequency threshold (minimum number of required connections between two kinases)",
+                                                          placement = "bottom", trigger = "focus"
+                                                        )
+                                                    ), 
+                                                  sliderInput("network_opt1", label = "Z score cutoff", min=0.5, max=10, value=2, step=0.25)  %>% 
+                                                    shinyInput_label_embed(
+                                                      htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
+                                                        bs_embed_popover(
+                                                          title = "Z Score", content = "Here you can control the Z score threshold of kinases to be used an input in the network model",
+                                                          placement = "top", trigger = "focus"
+                                                        )
+                                                    ), 
+                                                  sliderInput("nodeSize", label = "Node Size", min=1, max=10, value=3, step=1) %>% 
+                                                    shinyInput_label_embed(
+                                                      htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
+                                                        bs_embed_popover(
+                                                          title = "Z Score", content = "Scale node (circle) size",
+                                                          placement = "top", trigger = "focus"
+                                                        )
+                                                    ),
+                                                  
+                                                  sliderInput("nodeTextSize", label = "Node Text Size", min=1, max=10, value=6, step=1) %>% 
+                                                    shinyInput_label_embed(
+                                                    htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
+                                                      bs_embed_popover(
+                                                        title = "Z Score", content = "Scale text size",
+                                                        placement = "top", trigger = "focus"
+                                                      )
+                                                  ),
+                                                  selectInput("layout", "Choose layout:", choices=c("Circle", "Fruchterman-Reingold", "Kamada Kawai", "LGL"))%>% 
+                                                    shinyInput_label_embed(
+                                                      htmltools::tags$a(shiny::icon(name = "info-circle"), href = "javascript:;") %>%
+                                                        bs_embed_popover(
+                                                          title = "Z Score", content = "Select layout method. This will be passed to the igraph function to generate the network",
+                                                          placement = "top", trigger = "focus"
+                                                        )
+                                                    ),
                                      
                               ),
                               shinydashboard::box(title = "Network", width = 8, status = "primary",solidHeader=TRUE,
