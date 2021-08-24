@@ -189,7 +189,7 @@ guide3 <- Cicerone$
   )$
   step(
     el = "lfc_table_download",
-    title = "Iniital pepetides",
+    title = "Download LFC Table",
     position = "right",
     description = "You can click this button to save the table as a csv file",
   )$
@@ -202,7 +202,7 @@ guide3 <- Cicerone$
   )$
   step(
     el = "res_tabs",
-    title = "Iniital pepetides",
+    title = "Other Tabs",
     position = "bottom",
     description = "Click on the other tabs for more visualizations options",
   )

@@ -30,8 +30,8 @@ KRSA preprint is available here:
 
 ## Workflow
 
-<br /> ![KRSA Workflow](figures/workflow.jpg) <br /> <br />
-————————————————————————
+<br /> ![KRSA Workflow](www/images/workflow_new_noBG_highres.png) <br />
+<br /> ————————————————————————
 
 ## Random Sampling Approach
 
