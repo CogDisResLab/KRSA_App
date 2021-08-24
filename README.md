@@ -64,9 +64,15 @@ data/sup/FinalMappingSTK.txt. <br /> <br /> ————————————
 
 We wanted to have a user friendly interface, so we’ve designed the KRSA
 app to have a navbar at the top that takes you to different steps of the
-analysis. As you start the app, there will be only two tabs (Home and
-Step1: input). As you go through the app more tabs will appear. <br />
-*Most inputs and options have an info icon
+analysis.
+
+We added an interactive tutorials/instructions in the Shiny app to make
+the app more user-friendly. Now there are Help buttons at the top right
+in the first 3 tabs .
+
+As you start the app, there will be only two tabs (Home and Step1:
+input). As you go through the app more tabs will appear. <br /> *Most
+inputs and options have an info icon
 <img src="www/images/info-icon.jpg" width="15"/>, when clicked more
 information will be displayed* <br />
 
