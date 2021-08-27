@@ -21,7 +21,8 @@ More info on the PamStation12 platform can be found here:
 The web application is freely accessible here:
 [Link](https://kalganem.shinyapps.io/KRSA/)
 
-KRSA R package repo: [KRSA Package](https://github.com/kalganem/KRSA)
+KRSA R package repo: [KRSA
+Package](https://github.com/CogDisResLab/KRSA)
 
 KRSA preprint is available here:
 [Paper](https://www.biorxiv.org/content/10.1101/2020.08.26.268581v1)
@@ -30,8 +31,8 @@ KRSA preprint is available here:
 
 ## Workflow
 
-<br /> ![KRSA Workflow](www/images/workflow_new_noBG_highres.png) <br />
-<br /> ————————————————————————
+<br /> ![KRSA Workflow](www/images/workflow.png) <br /> <br />
+————————————————————————
 
 ## Random Sampling Approach
 
